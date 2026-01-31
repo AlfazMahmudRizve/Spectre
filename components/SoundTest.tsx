@@ -4,8 +4,10 @@ import { motion } from 'framer-motion';
 import { Howl } from 'howler';
 import GhostButton from './ui/GhostButton';
 import SectionWrapper from './ui/SectionWrapper';
+import { useProductStore } from '@/store/productStore';
 
 export default function SoundTest() {
+    const { activeProduct } = useProductStore();
     const [mode, setMode] = useState<'linear' | 'tactile'>('linear');
     const [isPlaying, setIsPlaying] = useState(false);
     const soundRef = useRef<Howl | null>(null);
@@ -18,6 +20,11 @@ export default function SoundTest() {
             }
         };
     }, [mode]);
+
+    // Hide for Headset (Carbon)
+    if (activeProduct.id === 'spectre-carbon') {
+        return null;
+    }
 
     const togglePlay = () => {
         if (isPlaying) {

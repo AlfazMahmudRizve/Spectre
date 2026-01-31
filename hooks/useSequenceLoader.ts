@@ -10,6 +10,7 @@ interface SequenceLoaderResult {
 export function useSequenceLoader(
     basePath: string,
     frameCount: number,
+    extension: string = 'webp',
     criticalCount: number = 20
 ): SequenceLoaderResult {
     const framesRef = useRef<(HTMLImageElement | null)[]>(new Array(frameCount).fill(null));
@@ -38,7 +39,7 @@ export function useSequenceLoader(
         const loadImage = (index: number): Promise<void> => {
             return new Promise((resolve) => {
                 const img = new Image();
-                img.src = `${basePath}/${index}.webp`;
+                img.src = `${basePath}/${index}.${extension}`;
 
                 img.onload = () => {
                     if (controller.signal.aborted) return;
@@ -96,7 +97,7 @@ export function useSequenceLoader(
             console.error("Sequence loader halted", error);
         }
 
-    }, [basePath, frameCount, criticalCount]);
+    }, [basePath, frameCount, criticalCount, extension]);
 
     useEffect(() => {
         loadSequence();

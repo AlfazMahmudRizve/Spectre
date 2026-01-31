@@ -30,7 +30,8 @@ export default function ProductSequence() {
         isFullLoaded
     } = useSequenceLoader(
         activeProduct.folder,
-        120,
+        activeProduct.frameCount,
+        activeProduct.fileExtension,
         25 // Increased slightly to cover initial scroll impulse
     );
 
@@ -44,7 +45,6 @@ export default function ProductSequence() {
     const [mobileLoaded, setMobileLoaded] = useState(false);
 
     // Store Subscription
-    // const { activeProduct } = useProductStore(); // Already destructured above
 
     const { scrollYProgress } = useScroll({
         target: containerRef,
@@ -65,7 +65,7 @@ export default function ProductSequence() {
             // Video loading is handled by onCanPlayThrough
         }
         // Desktop loading is handled by useSequenceLoader
-    }, [isMobile, activeProduct.folder]); // Re-run if product folder changes
+    }, [isMobile, activeProduct.folder, activeProduct.fileExtension]); // Re-run if product folder changes
 
     // Effect: Sync Scroll (Desktop & Mobile)
     useEffect(() => {
@@ -111,6 +111,17 @@ export default function ProductSequence() {
                 offsetY = 0;
             }
 
+            // Apply Visual Adjustments (Scale & Offset)
+            const scale = activeProduct.visuals?.scale || 1;
+            const yOffset = (activeProduct.visuals?.yOffset || 0) * canvas.height;
+
+            drawWidth *= scale;
+            drawHeight *= scale;
+
+            // Re-center after scaling
+            offsetX = (canvas.width - drawWidth) / 2;
+            offsetY = (canvas.height - drawHeight) / 2 + yOffset;
+
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(drawImg, offsetX, offsetY, drawWidth, drawHeight);
         };
@@ -120,7 +131,8 @@ export default function ProductSequence() {
                 canvasRef.current.width = window.innerWidth;
                 canvasRef.current.height = window.innerHeight;
                 const currentScroll = scrollYProgress.get();
-                const index = Math.min(119, Math.floor(currentScroll * 119));
+                const maxFrame = activeProduct.frameCount - 1;
+                const index = Math.min(maxFrame, Math.floor(currentScroll * maxFrame));
                 renderCanvas(index);
             }
         }, 100);
@@ -145,7 +157,8 @@ export default function ProductSequence() {
                 }
             } else {
                 // Desktop Canvas Sync
-                const index = Math.min(119, Math.floor(latest * 119));
+                const maxFrame = activeProduct.frameCount - 1;
+                const index = Math.min(maxFrame, Math.floor(latest * maxFrame));
                 rafId = requestAnimationFrame(() => renderCanvas(index));
             }
         });
