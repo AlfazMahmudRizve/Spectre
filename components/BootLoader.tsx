@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 interface BootLoaderProps {
     progress: number;
     complete: boolean;
+    skip?: boolean;
 }
 
 const bootLogs = [
@@ -20,10 +21,10 @@ const bootLogs = [
     "ACCESS_GRANTED."
 ];
 
-export default function BootLoader({ progress, complete }: BootLoaderProps) {
+export default function BootLoader({ progress, complete, skip = false }: BootLoaderProps) {
     const [logs, setLogs] = useState<string[]>([]);
     const scrollRef = useRef<HTMLDivElement>(null);
-    const [show, setShow] = useState(true);
+    const [show, setShow] = useState(!skip);
 
     // Handle exit delay
     useEffect(() => {
@@ -51,6 +52,8 @@ export default function BootLoader({ progress, complete }: BootLoaderProps) {
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         }
     }, [logs]);
+
+    if (skip) return null;
 
     return (
         <AnimatePresence>

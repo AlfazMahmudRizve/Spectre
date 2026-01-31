@@ -3,9 +3,11 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { useScroll, AnimatePresence, motion } from 'framer-motion';
 import BootLoader from './BootLoader';
 import TextOverlays from './TextOverlays';
-import { useProductStore } from '@/store/productStore';
+import { Product } from '@/data/products';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useSequenceLoader } from '@/hooks/useSequenceLoader';
+
+import { useProductStore } from '@/store/productStore';
 
 // Simple debounce utility
 function debounce(fn: Function, ms: number) {
@@ -16,9 +18,13 @@ function debounce(fn: Function, ms: number) {
     };
 }
 
-export default function ProductSequence() {
+interface ProductSequenceProps {
+    product: Product;
+}
+
+export default function ProductSequence({ product }: ProductSequenceProps) {
     const isMobile = useMediaQuery('(max-width: 768px)');
-    const { activeProduct } = useProductStore();
+    const { hasIntroPlayed, setHasIntroPlayed } = useProductStore();
 
     // Custom Hook for Progressive Loading (Desktop Only)
     // Critical Path: Load first 25 frames (Hero Loop) immediately.
@@ -29,9 +35,9 @@ export default function ProductSequence() {
         isCriticalLoaded,
         isFullLoaded
     } = useSequenceLoader(
-        activeProduct.folder,
-        activeProduct.frameCount,
-        activeProduct.fileExtension,
+        product.folder,
+        product.frameCount,
+        product.fileExtension,
         25 // Increased slightly to cover initial scroll impulse
     );
 
@@ -54,6 +60,7 @@ export default function ProductSequence() {
     // --- Mobile: Video Logic ---
     const handleVideoLoad = () => {
         setMobileLoaded(true);
+        if (!hasIntroPlayed) setHasIntroPlayed();
     };
 
     // Effect: Load Assets based on Device
@@ -65,7 +72,7 @@ export default function ProductSequence() {
             // Video loading is handled by onCanPlayThrough
         }
         // Desktop loading is handled by useSequenceLoader
-    }, [isMobile, activeProduct.folder, activeProduct.fileExtension]); // Re-run if product folder changes
+    }, [isMobile, product.folder, product.fileExtension]); // Re-run if product folder changes
 
     // Effect: Sync Scroll (Desktop & Mobile)
     useEffect(() => {
@@ -112,8 +119,8 @@ export default function ProductSequence() {
             }
 
             // Apply Visual Adjustments (Scale & Offset)
-            const scale = activeProduct.visuals?.scale || 1;
-            const yOffset = (activeProduct.visuals?.yOffset || 0) * canvas.height;
+            const scale = product.visuals?.scale || 1;
+            const yOffset = (product.visuals?.yOffset || 0) * canvas.height;
 
             drawWidth *= scale;
             drawHeight *= scale;
@@ -131,7 +138,7 @@ export default function ProductSequence() {
                 canvasRef.current.width = window.innerWidth;
                 canvasRef.current.height = window.innerHeight;
                 const currentScroll = scrollYProgress.get();
-                const maxFrame = activeProduct.frameCount - 1;
+                const maxFrame = product.frameCount - 1;
                 const index = Math.min(maxFrame, Math.floor(currentScroll * maxFrame));
                 renderCanvas(index);
             }
@@ -157,7 +164,7 @@ export default function ProductSequence() {
                 }
             } else {
                 // Desktop Canvas Sync
-                const maxFrame = activeProduct.frameCount - 1;
+                const maxFrame = product.frameCount - 1;
                 const index = Math.min(maxFrame, Math.floor(latest * maxFrame));
                 rafId = requestAnimationFrame(() => renderCanvas(index));
             }
@@ -166,6 +173,7 @@ export default function ProductSequence() {
         // Initial Paint loop to ensure first frame renders as soon as available
         if (!isMobile && isCriticalLoaded) {
             renderCanvas(0);
+            if (!hasIntroPlayed) setHasIntroPlayed();
         }
 
         return () => {
@@ -188,14 +196,14 @@ export default function ProductSequence() {
                 </AnimatePresence>
 
                 {/* BootLoader now dismisses as soon as Critical Path is ready */}
-                <BootLoader progress={progressValue} complete={isReady} />
+                <BootLoader progress={progressValue} complete={isReady} skip={hasIntroPlayed} />
 
                 {isMobile ? (
                     // Mobile Video Player
                     <video
                         ref={videoRef}
                         className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-                        src={activeProduct.mobileVideo}
+                        src={product.mobileVideo}
                         muted
                         playsInline
                         preload="auto"
@@ -209,7 +217,7 @@ export default function ProductSequence() {
                     />
                 )}
 
-                <TextOverlays scrollYProgress={scrollYProgress} />
+                <TextOverlays scrollYProgress={scrollYProgress} product={product} />
             </div>
         </div>
     );

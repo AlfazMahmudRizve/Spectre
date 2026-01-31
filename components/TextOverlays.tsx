@@ -1,10 +1,9 @@
 'use client';
 import { MotionValue, motion, useTransform } from 'framer-motion';
 import HyperText from './HyperText';
-import { useProductStore } from '@/store/productStore';
+import { Product } from '@/data/products';
 
-export default function TextOverlays({ scrollYProgress }: { scrollYProgress: MotionValue<number> }) {
-    const { activeProduct } = useProductStore();
+export default function TextOverlays({ scrollYProgress, product }: { scrollYProgress: MotionValue<number>, product: Product }) {
 
 
     // Screen 1: Intro (0 - 20%)
@@ -29,35 +28,35 @@ export default function TextOverlays({ scrollYProgress }: { scrollYProgress: Mot
             {/* SECTION 1: Intro - Top Left (or Right) */}
             <motion.div
                 style={{ opacity: opacity1, y: y1, scale: scale1 }}
-                className={`absolute top-24 z-20 max-w-xl pointer-events-none ${activeProduct.visuals?.textAlignment === 'right' ? 'right-8 md:right-16 text-right' : 'left-8 md:left-16 text-left'}`}
+                className={`absolute top-24 z-20 max-w-xl pointer-events-none ${product.visuals?.textAlignment === 'right' ? 'right-8 md:right-16 text-right' : 'left-8 md:left-16 text-left'}`}
             >
                 <div className="inline-block p-8 rounded-2xl bg-black/40 backdrop-blur-md border border-white/5 shadow-2xl">
                     <h1 className="text-6xl md:text-8xl leading-none font-grotesk font-bold tracking-tighter text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
-                        <HyperText text={activeProduct.heroName} />
+                        <HyperText text={product.heroName} />
                     </h1>
-                    <h1 className="text-6xl md:text-8xl leading-none font-grotesk font-bold tracking-tighter drop-shadow-[0_0_10px_currentColor]" style={{ color: activeProduct.accentColor }}>
-                        <HyperText text={activeProduct.modelName} />
+                    <h1 className="text-6xl md:text-8xl leading-none font-grotesk font-bold tracking-tighter drop-shadow-[0_0_10px_currentColor]" style={{ color: product.accentColor }}>
+                        <HyperText text={product.modelName} />
                     </h1>
                     <p className="text-sm md:text-base font-mono tracking-[0.3em] mt-6 text-white/80 uppercase">
-                        <HyperText text={activeProduct.tagline} duration={1000} />
+                        <HyperText text={product.tagline} duration={1000} />
                     </p>
                     <p className="text-xs font-mono text-gray-400 mt-4 max-w-md leading-relaxed">
-                        {activeProduct.subHeadline}
+                        {product.subHeadline}
                     </p>
                 </div>
             </motion.div>
 
             {/* SECTION 2: Phase 1 - Middle Left */}
             <motion.div style={{ opacity: opacity2, x: x2 }} className="absolute top-1/2 left-8 md:left-16 -translate-y-1/2 z-20 pointer-events-none">
-                <div className="p-8 rounded-xl bg-black/50 backdrop-blur-md border-l-4 shadow-xl" style={{ borderColor: activeProduct.accentColor }}>
+                <div className="p-8 rounded-xl bg-black/50 backdrop-blur-md border-l-4 shadow-xl" style={{ borderColor: product.accentColor }}>
                     <h2 className="text-4xl md:text-6xl font-grotesk font-bold leading-tight text-white mb-2">
-                        <HyperText text={activeProduct.phases[0].title} />
+                        <HyperText text={product.phases[0].title} />
                     </h2>
                     <h2 className="text-2xl md:text-4xl font-grotesk font-bold leading-tight text-white/50 mb-4">
-                        <HyperText text={activeProduct.phases[0].subtitle} />
+                        <HyperText text={product.phases[0].subtitle} />
                     </h2>
-                    <p className="max-w-xs font-mono text-xs leading-relaxed border-l border-white/20 pl-4 py-1" style={{ color: activeProduct.accentColor }}>
-                        {activeProduct.phases[0].description}
+                    <p className="max-w-xs font-mono text-xs leading-relaxed border-l border-white/20 pl-4 py-1" style={{ color: product.accentColor }}>
+                        {product.phases[0].description}
                     </p>
                 </div>
             </motion.div>
@@ -66,32 +65,32 @@ export default function TextOverlays({ scrollYProgress }: { scrollYProgress: Mot
             <motion.div style={{ opacity: opacity3, y: y3 }} className="absolute top-1/2 right-8 md:right-16 -translate-y-1/2 text-right z-20 pointer-events-none">
                 <div className="p-8 rounded-xl bg-black/50 backdrop-blur-md border-r-4 border-white shadow-xl flex flex-col items-end">
                     <h2 className="text-5xl md:text-7xl font-grotesk font-bold text-white mb-2">
-                        <HyperText text={activeProduct.phases[1].title} />
+                        <HyperText text={product.phases[1].title} />
                     </h2>
                     <h2 className="text-3xl md:text-5xl font-grotesk font-bold text-transparent bg-clip-text bg-gradient-to-l from-white to-white/10 mb-4">
-                        <HyperText text={activeProduct.phases[1].subtitle} />
+                        <HyperText text={product.phases[1].subtitle} />
                     </h2>
                     <p className="max-w-xs font-mono text-xs leading-relaxed text-gray-300">
-                        {activeProduct.phases[1].description}
+                        {product.phases[1].description}
                     </p>
                 </div>
             </motion.div>
 
             {/* SECTION 4: Phase 3 / CTA - Bottom Right */}
             <motion.div style={{ opacity: opacity4, scale: scale4 }} className="absolute bottom-24 right-8 md:right-16 z-30 pointer-events-auto">
-                <div className="p-10 rounded-2xl bg-black/70 backdrop-blur-xl border shadow-[0_0_40px_rgba(0,0,0,0.5)] flex flex-col items-center text-center" style={{ borderColor: `${activeProduct.accentColor}30` }}>
+                <div className="p-10 rounded-2xl bg-black/70 backdrop-blur-xl border shadow-[0_0_40px_rgba(0,0,0,0.5)] flex flex-col items-center text-center" style={{ borderColor: `${product.accentColor}30` }}>
                     <h2 className="text-3xl md:text-5xl font-grotesk font-bold mb-2 text-white">
-                        <HyperText text={activeProduct.phases[2].title} />
+                        <HyperText text={product.phases[2].title} />
                     </h2>
                     <p className="text-sm font-mono text-gray-400 mb-6 max-w-xs">
-                        {activeProduct.phases[2].description}
+                        {product.phases[2].description}
                     </p>
                     <a
                         href="#"
                         className="group relative px-10 py-3 bg-white/5 hover:bg-white/10 overflow-hidden inline-block border transition-all duration-300"
-                        style={{ borderColor: activeProduct.accentColor }}
+                        style={{ borderColor: product.accentColor }}
                     >
-                        <span className="relative font-mono tracking-widest font-bold group-hover:tracking-[0.2em] transition-all duration-300" style={{ color: activeProduct.accentColor }}>
+                        <span className="relative font-mono tracking-widest font-bold group-hover:tracking-[0.2em] transition-all duration-300" style={{ color: product.accentColor }}>
                             PRE-ORDER NOW
                         </span>
                     </a>
