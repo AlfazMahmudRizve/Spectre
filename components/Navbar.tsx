@@ -1,14 +1,14 @@
 'use client';
 import { useSound } from './SoundManager';
 import { useCartStore } from '@/store/cartStore';
-import { useEditionStore } from '@/store/editionStore';
+import { useProductStore } from '@/store/productStore';
 import { ShoppingBag } from 'lucide-react';
 import GhostButton from './ui/GhostButton';
 
 export default function Navbar() {
     const { playHover, playClick, isMuted, toggleMute } = useSound();
-    const { config } = useEditionStore();
-    const accentColor = config.colors.primary;
+    const { activeProduct } = useProductStore();
+    const accentColor = activeProduct.accentColor;
 
     return (
         <nav className="fixed top-0 left-0 w-full z-40 px-6 py-6 flex justify-between items-center mix-blend-difference text-white select-none pointer-events-none">
@@ -78,7 +78,7 @@ export default function Navbar() {
                     size="md"
                     onClick={playClick}
                 >
-                    PRE-ORDER
+                    PRE-ORDER ${activeProduct.price}
                 </GhostButton>
             </div>
         </nav>

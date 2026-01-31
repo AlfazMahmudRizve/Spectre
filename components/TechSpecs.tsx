@@ -2,6 +2,7 @@
 import { useRef, MouseEvent } from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import SectionWrapper from './ui/SectionWrapper';
+import { useProductStore } from '@/store/productStore';
 
 const TiltCard = ({ children, className = "", span = 1 }: { children: React.ReactNode, className?: string, span?: number }) => {
     const ref = useRef<HTMLDivElement>(null);
@@ -55,51 +56,57 @@ const TiltCard = ({ children, className = "", span = 1 }: { children: React.Reac
 };
 
 export default function TechSpecs() {
+    const { activeProduct } = useProductStore();
+
     return (
         <SectionWrapper className="bg-spectre-black z-10">
             <div className="mb-16">
-                <h2 className="text-4xl md:text-6xl font-grotesk font-bold text-white mb-4">TECHNICAL <span className="text-spectre-cyan">SPECIFICATIONS</span></h2>
+                <h2 className="text-4xl md:text-6xl font-grotesk font-bold text-white mb-4">
+                    TECHNICAL <span style={{ color: activeProduct.accentColor }}>SPECIFICATIONS</span>
+                </h2>
                 <p className="font-mono text-spectre-grey text-sm md:text-base max-w-xl">
                     ENGINEERED FOR PERFORMANCE. CALIBRATED FOR PERFECTION.
                 </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[300px]">
-                {/* Card 1: Zero Gravity Gasket */}
+                {/* Card 1: Gasket / Mounting */}
                 <TiltCard span={2}>
                     <div>
                         <h3 className="text-2xl font-bold font-grotesk text-white mb-2">ZERO GRAVITY GASKET</h3>
                         <p className="text-gray-400 font-mono text-sm leading-relaxed max-w-md">
                             Our proprietary silicone mounting system isolates the PCB from the chassis,
                             creating a typing experience that feels like floating on air.
-                            Eliminates harsh bottom-outs and case ping.
                         </p>
                     </div>
-                    <div className="w-full h-32 bg-gradient-to-r from-spectre-cyan/20 to-transparent rounded-lg mt-4 border border-spectre-cyan/20 flex items-center justify-center relative overflow-hidden">
-                        {/* Abstract Visual */}
+                    <div className="w-full h-32 bg-white/5 rounded-lg mt-4 border border-white/10 flex items-center justify-center relative overflow-hidden">
                         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-20" />
-                        <span className="font-mono text-xs text-spectre-cyan">FLEX_MODULE_V2.0</span>
+                        <span className="font-mono text-xs" style={{ color: activeProduct.accentColor }}>
+                            {activeProduct.specs.material} CHASSIS
+                        </span>
                     </div>
                 </TiltCard>
 
-                {/* Card 2: 8000Hz Polling */}
+                {/* Card 2: Polling / Actuation */}
                 <TiltCard>
                     <div className="flex flex-col items-center justify-center h-full text-center">
-                        <h3 className="text-sm font-mono text-gray-400 uppercase tracking-widest mb-4">POLLING RATE</h3>
+                        <h3 className="text-sm font-mono text-gray-400 uppercase tracking-widest mb-4">ACTUATION FORCE</h3>
                         <div className="text-7xl font-bold font-grotesk text-transparent bg-clip-text bg-gradient-to-b from-white to-white/20">
-                            8K
+                            {activeProduct.specs.actuation}
                         </div>
-                        <span className="text-spectre-cyan font-bold text-xl mt-2">Hz</span>
+                        <span className="font-bold text-xl mt-2" style={{ color: activeProduct.accentColor }}>
+                            {activeProduct.specs.switch}
+                        </span>
                     </div>
                 </TiltCard>
 
                 {/* Card 3: Triple Mode */}
                 <TiltCard>
                     <div>
-                        <h3 className="text-xl font-bold font-grotesk text-white mb-6">TRIPLE MODE</h3>
+                        <h3 className="text-xl font-bold font-grotesk text-white mb-6">CONNECTIVITY</h3>
                         <div className="space-y-4 font-mono text-sm text-gray-400">
                             <div className="flex items-center gap-3">
-                                <div className="w-2 h-2 rounded-full bg-spectre-cyan shadow-[0_0_10px_#00F0FF]" />
+                                <div className="w-2 h-2 rounded-full shadow-[0_0_10px_currentColor]" style={{ backgroundColor: activeProduct.accentColor, color: activeProduct.accentColor }} />
                                 <span>2.4GHz WIRELESS</span>
                             </div>
                             <div className="flex items-center gap-3">
@@ -121,20 +128,19 @@ export default function TechSpecs() {
                             <div>
                                 <h3 className="text-2xl font-bold font-grotesk text-white mb-2">ACOUSTIC DAMPENING</h3>
                                 <p className="text-gray-400 font-mono text-sm leading-relaxed">
-                                    Layered IXPE switch pads and PORON casing foam absorb high-frequency reverberations while preserving the signature "thock".
+                                    Layered IXPE switch pads and PORON casing foam absorb high-frequency reverberations.
                                 </p>
                             </div>
                             <div className="flex gap-4 mt-4">
                                 <div className="px-3 py-1 rounded-full border border-white/10 text-xs font-mono text-white">PORON</div>
                                 <div className="px-3 py-1 rounded-full border border-white/10 text-xs font-mono text-white">IXPE</div>
-                                <div className="px-3 py-1 rounded-full border border-white/10 text-xs font-mono text-white">PET</div>
                             </div>
                         </div>
                         <div className="flex-1 bg-white/5 rounded-lg border border-white/5 relative overflow-hidden flex items-center justify-center">
                             {/* Waveform Visual */}
                             <div className="flex gap-1 items-end h-12">
                                 {[40, 75, 30, 85, 50, 95, 25, 60, 45, 80].map((h, i) => (
-                                    <div key={i} className="w-2 bg-spectre-cyan/50 rounded-t-sm" style={{ height: `${h}%` }} />
+                                    <div key={i} className="w-2 rounded-t-sm" style={{ height: `${h}%`, backgroundColor: activeProduct.accentColor }} />
                                 ))}
                             </div>
                         </div>

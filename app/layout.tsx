@@ -4,7 +4,6 @@ import './globals.css';
 import SmoothScroll from '@/components/SmoothScroll';
 import { SoundProvider } from '@/components/SoundManager';
 import CartDrawer from '@/components/CartDrawer';
-import EditionSelector from '@/components/EditionSelector';
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -40,7 +39,6 @@ export default function RootLayout({
       >
         <SoundProvider>
           <CartDrawer /> {/* Added CartDrawer component */}
-          <EditionSelector />
           <SmoothScroll>
             {children} {/* Moved children inside SmoothScroll */}
           </SmoothScroll>

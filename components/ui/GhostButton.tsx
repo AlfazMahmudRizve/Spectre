@@ -1,7 +1,7 @@
 'use client';
 import { motion } from 'framer-motion';
 import { ReactNode, useRef, useState } from 'react';
-import { useEditionStore } from '@/store/editionStore';
+import { useProductStore } from '@/store/productStore';
 
 interface GhostButtonProps {
     children: ReactNode;
@@ -20,8 +20,8 @@ export default function GhostButton({
     size = 'md',
     strength = 30
 }: GhostButtonProps) {
-    const { config } = useEditionStore();
-    const accentColor = config.colors.primary;
+    const { activeProduct } = useProductStore();
+    const accentColor = activeProduct.accentColor;
     const ref = useRef<HTMLButtonElement>(null);
     const [position, setPosition] = useState({ x: 0, y: 0 });
 

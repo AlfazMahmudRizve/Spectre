@@ -1,8 +1,14 @@
 'use client';
 import { MotionValue, motion, useTransform } from 'framer-motion';
 import HyperText from './HyperText';
+import { useProductStore } from '@/store/productStore';
 
 export default function TextOverlays({ scrollYProgress }: { scrollYProgress: MotionValue<number> }) {
+    const { activeProduct } = useProductStore();
+
+    // Split name (e.g. "SPECTRE ONE" -> "SPECTRE" + "ONE")
+    const [brand, model] = activeProduct.name.split(' ');
+
     // Screen 1: Intro (0 - 20%)
     const opacity1 = useTransform(scrollYProgress, [0, 0.1, 0.2], [1, 1, 0]);
     const y1 = useTransform(scrollYProgress, [0, 0.2], [0, -50]);
@@ -26,13 +32,13 @@ export default function TextOverlays({ scrollYProgress }: { scrollYProgress: Mot
             <motion.div style={{ opacity: opacity1, y: y1, scale: scale1 }} className="absolute top-24 left-8 md:left-16 z-20 max-w-xl text-left pointer-events-none">
                 <div className="inline-block p-8 rounded-2xl bg-black/40 backdrop-blur-md border border-white/5 shadow-2xl">
                     <h1 className="text-6xl md:text-8xl leading-none font-grotesk font-bold tracking-tighter text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
-                        <HyperText text="SPECTRE" />
+                        <HyperText text={brand} />
                     </h1>
-                    <h1 className="text-6xl md:text-8xl leading-none font-grotesk font-bold tracking-tighter text-spectre-cyan drop-shadow-[0_0_10px_rgba(0,240,255,0.4)]">
-                        <HyperText text="ONE" />
+                    <h1 className="text-6xl md:text-8xl leading-none font-grotesk font-bold tracking-tighter drop-shadow-[0_0_10px_currentColor]" style={{ color: activeProduct.accentColor }}>
+                        <HyperText text={model} />
                     </h1>
                     <p className="text-sm md:text-base font-mono tracking-[0.3em] mt-6 text-white/80 uppercase">
-                        <HyperText text="The Ultimate Mechanical Experience" duration={1000} />
+                        <HyperText text={activeProduct.tagline} duration={1000} />
                     </p>
                 </div>
             </motion.div>
