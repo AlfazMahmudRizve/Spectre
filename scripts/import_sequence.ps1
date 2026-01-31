@@ -1,7 +1,8 @@
 param (
     [Parameter(Mandatory=$true)]
     [string]$SourcePath,
-    [int]$TargetFrameCount = 120
+    [int]$TargetFrameCount = 120,
+    [string]$Extension = "webp"
 )
 
 $TargetDir = Join-Path $PSScriptRoot "..\public\images\spectre"
@@ -34,18 +35,13 @@ for ($i = 0; $i -lt $TargetFrameCount; $i++) {
     if ($SourceIndex -ge $Count) { $SourceIndex = $Count - 1 }
     
     $SourceFile = $SourceImages[$SourceIndex]
-    $Extension = $SourceFile.Extension
-    # Force jpg extension for consistency with code, or keep original?
-    # Code expects .jpg currently in ProductSequence.tsx:29: img.src = `/images/spectre/${i}.jpg`;
-    # So we should convert or rename to .jpg. For simplicity, we just rename extension if it's compatible or warn.
-    # Ideally we'd convert, but standard copy/rename is safer for a simple script. 
-    # Let's assuming input is jpg for now as per project spec, or just force the name to .jpg and hope the browser handles it (modern browsers often do sniff mime type) OR strict rename.
-    # Safest: Copy as is, but project checks for .jpg.
     
-    $DestName = "$i.jpg" 
+    # Use specified extension or source extension if we wanted to be dynamic, 
+    # but here we enforce uniformity for the code to predict.
+    $DestName = "$i.$Extension" 
     $DestPath = Join-Path $TargetDir $DestName
     
     Copy-Item -LiteralPath $SourceFile.FullName -Destination $DestPath
 }
 
-Write-Host "Successfully imported $TargetFrameCount frames to public/images/spectre/"
+Write-Host "Successfully imported $TargetFrameCount frames to public/images/spectre/ as .$Extension"

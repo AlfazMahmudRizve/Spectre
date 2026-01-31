@@ -1,5 +1,6 @@
 'use client';
 import { MotionValue, motion, useTransform } from 'framer-motion';
+import HyperText from './HyperText';
 
 export default function TextOverlays({ scrollYProgress }: { scrollYProgress: MotionValue<number> }) {
     // Screen 1: Intro (0 - 20%)
@@ -20,50 +21,64 @@ export default function TextOverlays({ scrollYProgress }: { scrollYProgress: Mot
     const scale4 = useTransform(scrollYProgress, [0.85, 1], [0.9, 1]);
 
     return (
-        <div className="absolute inset-0 pointer-events-none flex items-center justify-center mix-blend-difference z-10 w-full h-full">
-            {/* SECTION 1 */}
-            <motion.div style={{ opacity: opacity1, y: y1, scale: scale1 }} className="text-center absolute w-full px-4">
-                <h1 className="text-[12vw] leading-none font-grotesk font-bold tracking-tighter text-white">
-                    SPECTRE ONE
-                </h1>
-                <p className="text-xl md:text-2xl font-mono tracking-[0.5em] mt-4 text-spectre-cyan">
-                    THE ULTIMATE MECHANICAL EXPERIENCE
-                </p>
+        <div className="absolute inset-0 pointer-events-none z-10 w-full h-full font-sans">
+            {/* SECTION 1: Intro - Top Left */}
+            <motion.div style={{ opacity: opacity1, y: y1, scale: scale1 }} className="absolute top-24 left-8 md:left-16 z-20 max-w-xl text-left pointer-events-none">
+                <div className="inline-block p-8 rounded-2xl bg-black/40 backdrop-blur-md border border-white/5 shadow-2xl">
+                    <h1 className="text-6xl md:text-8xl leading-none font-grotesk font-bold tracking-tighter text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
+                        <HyperText text="SPECTRE" />
+                    </h1>
+                    <h1 className="text-6xl md:text-8xl leading-none font-grotesk font-bold tracking-tighter text-spectre-cyan drop-shadow-[0_0_10px_rgba(0,240,255,0.4)]">
+                        <HyperText text="ONE" />
+                    </h1>
+                    <p className="text-sm md:text-base font-mono tracking-[0.3em] mt-6 text-white/80 uppercase">
+                        <HyperText text="The Ultimate Mechanical Experience" duration={1000} />
+                    </p>
+                </div>
             </motion.div>
 
-            {/* SECTION 2 */}
-            <motion.div style={{ opacity: opacity2, x: x2 }} className="absolute top-1/2 left-4 md:left-24 -translate-y-1/2 text-left">
-                <h2 className="text-5xl md:text-8xl font-grotesk font-bold leading-tight text-white/90">
-                    ZERO<br />GRAVITY<br />MOUNT
-                </h2>
-                <p className="text-spectre-cyan mt-4 max-w-sm font-mono text-sm border-l-2 border-spectre-cyan pl-4">
-                    PRECISION ENGINEERED GASKET MOUNTING SYSTEM FOR FLOATING ACOUSTICS.
-                </p>
+            {/* SECTION 2: Zero Gravity - Middle Left */}
+            <motion.div style={{ opacity: opacity2, x: x2 }} className="absolute top-1/2 left-8 md:left-16 -translate-y-1/2 z-20 pointer-events-none">
+                <div className="p-8 rounded-xl bg-black/50 backdrop-blur-md border-l-4 border-spectre-cyan shadow-xl">
+                    <h2 className="text-4xl md:text-6xl font-grotesk font-bold leading-tight text-white mb-2">
+                        <HyperText text="ZERO GRAVITY" />
+                    </h2>
+                    <h2 className="text-4xl md:text-6xl font-grotesk font-bold leading-tight text-white/50 mb-4">
+                        <HyperText text="MOUNTING" />
+                    </h2>
+                    <p className="text-spectre-cyan max-w-xs font-mono text-xs leading-relaxed border-l border-white/20 pl-4 py-1">
+                        PRECISION ENGINEERED GASKET SYSTEM ELIMINATES VIBRTATION FOR PURE SOUND.
+                    </p>
+                </div>
             </motion.div>
 
-            {/* SECTION 3 */}
-            <motion.div style={{ opacity: opacity3, y: y3 }} className="text-center absolute bottom-12 md:bottom-24 w-full px-4">
-                <h2 className="text-6xl md:text-[10rem] leading-none font-grotesk font-bold text-transparent bg-clip-text bg-gradient-to-b from-white to-spectre-grey opacity-20 hover:opacity-100 transition-opacity duration-500">
-                    ACOUSTIC<br />PERFECTION
-                </h2>
+            {/* SECTION 3: Acoustic - Middle Right */}
+            <motion.div style={{ opacity: opacity3, y: y3 }} className="absolute top-1/2 right-8 md:right-16 -translate-y-1/2 text-right z-20 pointer-events-none">
+                <div className="p-8 rounded-xl bg-black/50 backdrop-blur-md border-r-4 border-white shadow-xl flex flex-col items-end">
+                    <h2 className="text-5xl md:text-7xl font-grotesk font-bold text-white mb-2">
+                        <HyperText text="ACOUSTIC" />
+                    </h2>
+                    <h2 className="text-5xl md:text-7xl font-grotesk font-bold text-transparent bg-clip-text bg-gradient-to-l from-white to-white/10">
+                        <HyperText text="PERFECTION" />
+                    </h2>
+                </div>
             </motion.div>
 
-            {/* SECTION 4 */}
-            <motion.div style={{ opacity: opacity4, scale: scale4 }} className="text-center absolute pointer-events-auto flex flex-col items-center">
-                <h2 className="text-5xl md:text-7xl font-grotesk font-bold mb-8 text-white">
-                    ASSEMBLE YOURS
-                </h2>
-                <a
-                    href="#"
-                    className="group relative px-12 py-4 bg-transparent overflow-hidden"
-                >
-                    <span className="absolute inset-0 w-full h-full bg-spectre-cyan/10 group-hover:bg-spectre-cyan/20 transition-all duration-300"></span>
-                    <span className="absolute top-0 left-0 w-full h-[1px] bg-spectre-cyan"></span>
-                    <span className="absolute bottom-0 left-0 w-full h-[1px] bg-spectre-cyan"></span>
-                    <span className="relative font-mono text-spectre-cyan tracking-widest group-hover:tracking-[0.2em] transition-all duration-300">
-                        PRE-ORDER NOW
-                    </span>
-                </a>
+            {/* SECTION 4: CTA - Bottom Right */}
+            <motion.div style={{ opacity: opacity4, scale: scale4 }} className="absolute bottom-24 right-8 md:right-16 z-30 pointer-events-auto">
+                <div className="p-10 rounded-2xl bg-black/70 backdrop-blur-xl border border-spectre-cyan/30 shadow-[0_0_40px_rgba(0,240,255,0.15)] flex flex-col items-center text-center">
+                    <h2 className="text-3xl md:text-5xl font-grotesk font-bold mb-6 text-white">
+                        <HyperText text="READY?" />
+                    </h2>
+                    <a
+                        href="#"
+                        className="group relative px-10 py-3 bg-spectre-cyan/10 hover:bg-spectre-cyan/20 overflow-hidden inline-block border border-spectre-cyan transition-all duration-300"
+                    >
+                        <span className="relative font-mono text-spectre-cyan tracking-widest font-bold group-hover:tracking-[0.2em] transition-all duration-300">
+                            ASSEMBLE YOURS
+                        </span>
+                    </a>
+                </div>
             </motion.div>
         </div>
     )

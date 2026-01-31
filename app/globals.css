@@ -4,11 +4,25 @@
 
 @layer base {
   body {
-    @apply bg-spectre-black text-white;
+    @apply bg-black text-white;
   }
-  
+
   ::selection {
     @apply bg-spectre-cyan text-black;
+  }
+}
+
+@layer components {
+  .ghost-flex-center {
+    @apply flex items-center justify-center;
+  }
+
+  .ghost-container {
+    @apply max-w-7xl mx-auto px-6 md:px-12 w-full;
+  }
+
+  .ghost-text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500;
   }
 }
 
@@ -16,6 +30,7 @@
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
+
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;

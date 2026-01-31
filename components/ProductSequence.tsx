@@ -1,83 +1,123 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
-import { useScroll, useTransform, motion } from 'framer-motion';
-import CanvasLoader from './CanvasLoader';
+import { useEffect, useRef, useState, useCallback } from 'react';
+import { useScroll, AnimatePresence, motion } from 'framer-motion';
+import BootLoader from './BootLoader';
 import TextOverlays from './TextOverlays';
+import { useEditionStore } from '@/store/editionStore';
+
+// Simple debounce utility
+function debounce(fn: Function, ms: number) {
+    let timer: NodeJS.Timeout;
+    return (...args: any[]) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn(...args), ms);
+    };
+}
 
 export default function ProductSequence() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
-    const [images, setImages] = useState<HTMLImageElement[]>([]);
     const [loaded, setLoaded] = useState(false);
     const [progress, setProgress] = useState(0);
+
+    // Store Subscription
+    const { currentEdition, config } = useEditionStore();
+    const [isLoadingTheme, setIsLoadingTheme] = useState(false);
+
+    // Cache for frames
+    const framesRef = useRef<HTMLImageElement[]>([]);
+    const abortControllerRef = useRef<AbortController | null>(null);
 
     const { scrollYProgress } = useScroll({
         target: containerRef,
         offset: ["start start", "end end"]
     });
 
-    // Load images
-    useEffect(() => {
+    const loadImages = useCallback(async () => {
+        // Cancel previous load if active
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+        }
+        const controller = new AbortController();
+        abortControllerRef.current = controller;
+
+        setIsLoadingTheme(true);
+        const frameCount = 120;
         let loadedCount = 0;
-        const totalFrames = 120;
-        // Initialize with nulls but typed as array of nullable images
-        const loadedImages: (HTMLImageElement | null)[] = new Array(totalFrames).fill(null);
-        let active = true;
+        const newFrames: HTMLImageElement[] = [];
 
-        const loadPromises = Array.from({ length: totalFrames }, (_, i) => {
-            return new Promise<void>((resolve) => {
+        // Explicitly clear memory
+        framesRef.current = [];
+
+        try {
+            for (let i = 0; i < frameCount; i++) {
+                if (controller.signal.aborted) return;
+
                 const img = new Image();
-                img.src = `/images/spectre/${i}.jpg`;
-                img.onload = () => {
-                    if (!active) return;
-                    loadedCount++;
-                    setProgress(Math.round((loadedCount / totalFrames) * 100));
-                    loadedImages[i] = img;
-                    resolve();
-                };
-                img.onerror = () => {
-                    console.warn(`Failed to load frame ${i}`);
-                    loadedCount++;
-                    setProgress(Math.round((loadedCount / totalFrames) * 100));
-                    resolve(); // resolve anyway
-                };
-            });
-        });
+                img.src = `${config.sequencePath}/${i}.webp`;
 
-        Promise.all(loadPromises).then(() => {
-            if (active) {
-                // Filter out any potential nulls if failure occurred (though we resolved)
-                // If image failed, it stays null. We should filter or handle null in render.
-                // For now, we cast but render assumes defined.
-                // Better: Filter for type safety, but index mapping relies on position.
-                // If index 40 fails, images[40] is null.
-                setImages(loadedImages as HTMLImageElement[]);
-                setLoaded(true);
+                await new Promise<void>((resolve) => {
+                    img.onload = () => {
+                        if (controller.signal.aborted) return;
+                        loadedCount++;
+                        setProgress(Math.round((loadedCount / frameCount) * 100));
+                        resolve();
+                    };
+                    img.onerror = () => {
+                        console.warn(`Failed frame ${i}`);
+                        loadedCount++;
+                        resolve();
+                    };
+                });
+                newFrames.push(img);
             }
-        });
 
-        return () => { active = false; };
-    }, []);
+            if (!controller.signal.aborted) {
+                framesRef.current = newFrames;
+                setLoaded(true);
+                setIsLoadingTheme(false);
 
-    // Draw logic
+                // Initial draw
+                const ctx = canvasRef.current?.getContext('2d');
+                if (ctx && newFrames[0]) {
+                    requestAnimationFrame(() => {
+                        if (canvasRef.current) {
+                            ctx.drawImage(newFrames[0], 0, 0, canvasRef.current.width, canvasRef.current.height);
+                        }
+                    });
+                }
+            }
+        } catch (e) {
+            console.error("Sequence load error", e);
+        }
+    }, [config.sequencePath, config.name]);
+
+    // Effect to trigger load
     useEffect(() => {
-        if (!canvasRef.current || images.length === 0 || !loaded) return;
+        loadImages();
+        return () => {
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort();
+            }
+            framesRef.current = [];
+        };
+    }, [loadImages]);
+
+    // Draw Loop
+    useEffect(() => {
+        if (!canvasRef.current || !loaded) return;
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
-        let requestAnimationFrameId: number;
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        let currentFrameIndex = 0;
+        let rafId: number;
 
         const render = (index: number) => {
-            currentFrameIndex = index;
-            const img = images[index];
-            if (!img) return;
+            if (!framesRef.current[index]) return;
+            const img = framesRef.current[index];
 
             const canvasRatio = canvas.width / canvas.height;
             const imgRatio = img.width / img.height;
-
             let drawWidth, drawHeight, offsetX, offsetY;
 
             if (imgRatio > canvasRatio) {
@@ -96,18 +136,22 @@ export default function ProductSequence() {
             ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
         };
 
-        const handleResize = () => {
+        const handleResize = debounce(() => {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            render(currentFrameIndex);
-        };
+            const currentScroll = scrollYProgress.get();
+            const index = Math.min(119, Math.floor(currentScroll * 119));
+            render(index);
+        }, 100);
 
-        handleResize();
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
         window.addEventListener('resize', handleResize);
 
         const unsubscribe = scrollYProgress.on("change", (latest) => {
             const index = Math.min(119, Math.floor(latest * 119));
-            requestAnimationFrameId = requestAnimationFrame(() => render(index));
+            rafId = requestAnimationFrame(() => render(index));
         });
 
         render(0);
@@ -115,19 +159,29 @@ export default function ProductSequence() {
         return () => {
             unsubscribe();
             window.removeEventListener('resize', handleResize);
-            if (requestAnimationFrameId) cancelAnimationFrame(requestAnimationFrameId);
-        }
-    }, [loaded, scrollYProgress, images]);
+            if (rafId) cancelAnimationFrame(rafId);
+        };
+    }, [loaded, scrollYProgress, currentEdition]);
 
     return (
-        <>
-            <CanvasLoader progress={progress} loaded={loaded} />
-            <div ref={containerRef} className="h-[600vh] relative bg-spectre-black">
-                <div className="sticky top-0 h-screen w-full overflow-hidden">
-                    <canvas ref={canvasRef} className="absolute inset-0 w-full h-full object-contain pointer-events-none" />
-                    <TextOverlays scrollYProgress={scrollYProgress} />
-                </div>
+        <div ref={containerRef} className="h-[600vh] relative bg-spectre-black">
+            <div className="sticky top-0 h-screen w-full overflow-hidden bg-black">
+                <AnimatePresence>
+                    {isLoadingTheme && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="absolute inset-0 z-50 bg-black/90 flex items-center justify-center font-mono text-spectre-cyan"
+                        >
+                            <span className="animate-pulse">LOADING_SEQUENCE::{config.name}</span>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+                <BootLoader progress={progress} complete={loaded} />
+                <canvas ref={canvasRef} className="absolute inset-0 w-full h-full object-contain pointer-events-none" />
+                <TextOverlays scrollYProgress={scrollYProgress} />
             </div>
-        </>
-    )
+        </div>
+    );
 }

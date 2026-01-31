@@ -2,6 +2,9 @@ import type { Metadata } from 'next';
 import { Space_Grotesk, Inter } from 'next/font/google';
 import './globals.css';
 import SmoothScroll from '@/components/SmoothScroll';
+import { SoundProvider } from '@/components/SoundManager';
+import CartDrawer from '@/components/CartDrawer';
+import EditionSelector from '@/components/EditionSelector';
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -26,17 +29,22 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: {
-  children: React.ReactNode
-}) {
+}: Readonly<{ // Changed type definition for children
+  children: React.ReactNode;
+}>) {
   return (
-    <html lang="en" className="no-scrollbar">
-      <body className={`${spaceGrotesk.variable} ${inter.variable} font-inter bg-spectre-black text-white antialiased selection:bg-spectre-cyan selection:text-black`}>
-        <SmoothScroll>
-          <main className="min-h-screen flex flex-col justify-between">
-            {children}
-          </main>
-        </SmoothScroll>
+    <html lang="en">
+      <body
+        className={`${spaceGrotesk.variable} ${inter.variable} font-inter bg-black text-white antialiased overflow-x-hidden`}
+        suppressHydrationWarning
+      >
+        <SoundProvider>
+          <CartDrawer /> {/* Added CartDrawer component */}
+          <EditionSelector />
+          <SmoothScroll>
+            {children} {/* Moved children inside SmoothScroll */}
+          </SmoothScroll>
+        </SoundProvider>
       </body>
     </html>
   );
