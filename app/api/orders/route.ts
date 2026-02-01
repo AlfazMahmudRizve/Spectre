@@ -10,6 +10,7 @@ export async function POST(req: Request) {
 
         // Try to identify user
         const session = await getServerSession(authOptions);
+        // @ts-ignore
         let userId = session?.user?.id;
 
         // If no session, check if email exists in DB or create Shadow User
