@@ -69,9 +69,23 @@ export const authOptions: NextAuthOptions = {
         },
         async jwt({ token, user }) {
             if (user) {
-                const dbUser = await getUserByEmail(user.email!);
-                token.role = dbUser?.role || "customer";
-                token.id = dbUser?.id;
+                // Initial sign in
+                token.id = user.id;
+
+                // FORCE ADMIN ROLE FOR MASTER EMAIL
+                if (user.email === 'admin@spectre.net') {
+                    token.role = 'admin';
+                } else {
+                    // Try DB for others, fallback to customer
+                    try {
+                        const dbUser = await getUserByEmail(user.email!);
+                        token.role = dbUser?.role || "customer";
+                        token.id = dbUser?.id || token.id;
+                    } catch (e) {
+                        console.error("JWT DB Lookup Failed", e);
+                        token.role = "customer"; // Default to customer on error
+                    }
+                }
             }
             return token;
         },
