@@ -1,0 +1,44 @@
+{
+  "users": [
+    {
+      "id": "admin-1",
+      "email": "admin@spectre.net",
+      "password": "ghost",
+      "name": "Commander",
+      "role": "admin",
+      "createdAt": "2077-01-01T00:00:00.000Z"
+    },
+    {
+      "email": "a.m.rizve3905@gmail.com",
+      "name": "Alfaz Mahmud Rizve",
+      "role": "customer",
+      "provider": "google",
+      "id": "ec2xwj7vb",
+      "createdAt": "2026-02-01T15:36:09.918Z"
+    }
+  ],
+  "products": [
+    {
+      "id": "spectre-carbon",
+      "name": "Spectre Carbon",
+      "price": 349,
+      "stock": 42,
+      "status": "In Stock"
+    },
+    {
+      "id": "spectre-one",
+      "name": "Spectre One",
+      "price": 299,
+      "stock": 128,
+      "status": "In Stock"
+    },
+    {
+      "id": "spectre-mat",
+      "name": "Spectre Desk Mat",
+      "price": 49,
+      "stock": 500,
+      "status": "In Stock"
+    }
+  ],
+  "orders": []
+}

@@ -4,6 +4,7 @@ import './globals.css';
 import SmoothScroll from '@/components/SmoothScroll';
 import { SoundProvider } from '@/components/SoundManager';
 import CartDrawer from '@/components/CartDrawer';
+import Providers from '@/components/Providers';
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -43,12 +44,14 @@ export default function RootLayout({
         className={`${spaceGrotesk.variable} ${inter.variable} font-inter bg-black text-white antialiased overflow-x-hidden`}
         suppressHydrationWarning
       >
-        <SoundProvider>
-          <CartDrawer /> {/* Added CartDrawer component */}
-          <SmoothScroll>
-            {children} {/* Moved children inside SmoothScroll */}
-          </SmoothScroll>
-        </SoundProvider>
+        <Providers>
+          <SoundProvider>
+            <CartDrawer />
+            <SmoothScroll>
+              {children}
+            </SmoothScroll>
+          </SoundProvider>
+        </Providers>
       </body>
     </html>
   );

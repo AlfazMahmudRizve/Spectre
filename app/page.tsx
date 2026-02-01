@@ -6,6 +6,7 @@ import TechSpecs from '@/components/TechSpecs';
 import SoundTest from '@/components/SoundTest';
 import StaticGrid from '@/components/StaticGrid';
 import ModelSelector from '@/components/ModelSelector';
+import CartSidebar from '@/components/CartSidebar';
 import { useProductStore } from '@/store/productStore';
 
 export default function Home() {
@@ -37,6 +38,8 @@ export default function Home() {
       <div className="relative z-20 bg-black">
         <Footer />
       </div>
+
+      <CartSidebar />
     </>
   );
 }

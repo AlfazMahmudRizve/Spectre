@@ -86,15 +86,28 @@ export default function TextOverlays({ scrollYProgress, product }: { scrollYProg
                     <p className="text-sm font-mono text-gray-400 mb-6 max-w-xs">
                         {product.phases[2].description}
                     </p>
-                    <a
-                        href="#"
-                        className="group relative px-10 py-3 bg-white/5 hover:bg-white/10 overflow-hidden inline-block border transition-all duration-300"
+                    <button
+                        onClick={() => {
+                            // Extract folder to get a valid image path, assuming 0001.webp exists
+                            const imagePath = `${product.folder}/0001.${product.fileExtension}`;
+                            import('@/store/cartStore').then(({ useCartStore }) => {
+                                useCartStore.getState().addToCart({
+                                    id: product.id,
+                                    name: product.name,
+                                    price: product.price,
+                                    image: imagePath,
+                                    quantity: 1,
+                                    edition: product.modelName
+                                });
+                            });
+                        }}
+                        className="group relative px-10 py-3 bg-white/5 hover:bg-white/10 overflow-hidden inline-block border transition-all duration-300 cursor-pointer"
                         style={{ borderColor: product.accentColor }}
                     >
                         <span className="relative font-mono tracking-widest font-bold group-hover:tracking-[0.2em] transition-all duration-300" style={{ color: product.accentColor }}>
                             PRE-ORDER NOW
                         </span>
-                    </a>
+                    </button>
                 </div>
             </motion.div>
         </div>
