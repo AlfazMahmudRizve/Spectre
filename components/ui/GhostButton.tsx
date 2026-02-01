@@ -3,10 +3,8 @@ import { motion } from 'framer-motion';
 import { ReactNode, useRef, useState } from 'react';
 import { useProductStore } from '@/store/productStore';
 
-interface GhostButtonProps {
+interface GhostButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     children: ReactNode;
-    onClick?: () => void;
-    className?: string;
     variant?: 'ghost' | 'outline' | 'solid';
     size?: 'sm' | 'md' | 'lg';
     strength?: number; // For magnetic effect
@@ -18,7 +16,8 @@ export default function GhostButton({
     className = '',
     variant = 'outline',
     size = 'md',
-    strength = 30
+    strength = 30,
+    ...props
 }: GhostButtonProps) {
     const { activeProduct } = useProductStore();
     const accentColor = activeProduct.accentColor;
@@ -64,6 +63,7 @@ export default function GhostButton({
             transition={{ type: "spring", stiffness: 150, damping: 15, mass: 0.1 }}
             className={`${baseStyles} ${sizeStyles[size]} ${variantStyles[variant]} ${className}`}
             style={{ '--accent': accentColor } as React.CSSProperties}
+            {...props as any}
         >
             <span className="relative z-10 flex items-center gap-2">
                 {children}
