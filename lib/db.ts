@@ -64,8 +64,13 @@ export async function getUserByEmail(email: string): Promise<User | undefined> {
 export async function createUser(user: Omit<User, 'id' | 'createdAt'>): Promise<User> {
     const db = await readDb();
     const newUser: User = {
-        ...user,
         id: Math.random().toString(36).substr(2, 9),
+        email: user.email,
+        name: user.name,
+        // Only set password if provided (for credentials)
+        ...(user.password ? { password: user.password } : {}),
+        role: user.role,
+        provider: user.provider || 'credentials',
         createdAt: new Date().toISOString()
     };
     db.users.push(newUser);
