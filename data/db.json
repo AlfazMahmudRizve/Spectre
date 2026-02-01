@@ -15,6 +15,15 @@
       "provider": "google",
       "id": "ec2xwj7vb",
       "createdAt": "2026-02-01T15:36:09.918Z"
+    },
+    {
+      "id": "58ggpilt1",
+      "email": "a.m.rizve3047@gmail.com",
+      "name": "sheriff",
+      "password": "nopassword",
+      "role": "customer",
+      "provider": "credentials",
+      "createdAt": "2026-02-01T18:32:03.103Z"
     }
   ],
   "products": [
