@@ -217,8 +217,10 @@ export default function ProductSequence({ product }: ProductSequenceProps) {
                         ref={videoRef}
                         className="absolute inset-0 w-full h-full object-cover pointer-events-none"
                         src={product.mobileVideo}
+                        poster={`${product.folder}/0001.${product.fileExtension}`}
                         muted
                         playsInline
+                        loop
                         preload="auto"
                         onCanPlayThrough={handleVideoLoad}
                         onLoadedData={handleVideoLoad}
