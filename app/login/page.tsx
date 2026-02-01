@@ -5,8 +5,10 @@ import { useState } from 'react';
 import { Lock, Cpu, Chrome, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
+    const router = useRouter();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
@@ -20,13 +22,16 @@ export default function LoginPage() {
         const res = await signIn('credentials', {
             email,
             password,
-            redirect: true,
-            callbackUrl: '/dashboard'
+            redirect: false,
         });
 
         if (res?.error) {
             setError('ACCESS DENIED: INVALID CREDENTIALS');
             setLoading(false);
+        } else {
+            // Successful Login
+            router.push('/dashboard');
+            router.refresh(); // Ensure middleware/server components re-run
         }
     };
 
