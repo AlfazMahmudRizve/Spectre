@@ -19,19 +19,26 @@ export default function LoginPage() {
         setLoading(true);
         setError('');
 
-        const res = await signIn('credentials', {
-            email,
-            password,
-            redirect: false,
-        });
+        try {
+            const res = await signIn('credentials', {
+                email,
+                password,
+                redirect: false,
+            });
 
-        if (res?.error) {
-            setError('ACCESS DENIED: INVALID CREDENTIALS');
+            if (res?.error) {
+                console.error("Login Error:", res.error);
+                setError(`ACCESS DENIED: ${res.error}`);
+                setLoading(false);
+            } else {
+                // Successful Login
+                console.log("Login Success, redirecting...");
+                window.location.href = '/dashboard';
+            }
+        } catch (err) {
+            console.error("Sign In Exception:", err);
+            setError('SYSTEM ERROR: SEE CONSOLE');
             setLoading(false);
-        } else {
-            // Successful Login
-            router.push('/dashboard');
-            router.refresh(); // Ensure middleware/server components re-run
         }
     };
 
