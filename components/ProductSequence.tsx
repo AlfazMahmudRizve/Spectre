@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { useScroll, AnimatePresence, motion } from 'framer-motion';
+import { useScroll, AnimatePresence, motion, useSpring, useTransform } from 'framer-motion';
 import BootLoader from './BootLoader';
 import TextOverlays from './TextOverlays';
 import { Product } from '@/data/products';
@@ -52,10 +52,22 @@ export default function ProductSequence({ product }: ProductSequenceProps) {
 
     // Store Subscription
 
+    // Store Subscription
+
     const { scrollYProgress } = useScroll({
         target: containerRef,
         offset: ["start start", "end end"]
     });
+
+    // Buttery Smooth Scroll Physics
+    const smoothProgress = useSpring(scrollYProgress, {
+        stiffness: 100,
+        damping: 30,
+        restDelta: 0.001
+    });
+
+    // Scroll Indicator Opacity (Fades out quickly)
+    const scrollIndicatorOpacity = useTransform(smoothProgress, [0, 0.1], [1, 0]);
 
     // --- Mobile: Video Logic ---
     const handleVideoLoad = () => {
@@ -150,7 +162,7 @@ export default function ProductSequence({ product }: ProductSequenceProps) {
             if (canvasRef.current) {
                 canvasRef.current.width = window.innerWidth;
                 canvasRef.current.height = window.innerHeight;
-                const currentScroll = scrollYProgress.get();
+                const currentScroll = smoothProgress.get();
                 const maxFrame = product.frameCount - 1;
                 const index = Math.min(maxFrame, Math.floor(currentScroll * maxFrame));
                 renderCanvas(index);
@@ -165,7 +177,7 @@ export default function ProductSequence({ product }: ProductSequenceProps) {
             window.addEventListener('resize', handleResize);
         }
 
-        const unsubscribe = scrollYProgress.on("change", (latest) => {
+        const unsubscribe = smoothProgress.on("change", (latest) => {
             if (isMobile) {
                 // Mobile Video Sync
                 if (videoRef.current && videoRef.current.duration) {
@@ -194,15 +206,21 @@ export default function ProductSequence({ product }: ProductSequenceProps) {
             window.removeEventListener('resize', handleResize);
             if (rafId) cancelAnimationFrame(rafId);
         };
-    }, [scrollYProgress, isMobile, isCriticalLoaded, framesRef]); // Re-bind when critical loaded
+    }, [smoothProgress, isMobile, isCriticalLoaded, framesRef]); // Re-bind when critical loaded
 
     // Determine Loading State
     const isReady = isMobile ? mobileLoaded : isCriticalLoaded;
     const progressValue = isMobile ? (mobileLoaded ? 100 : 0) : progress;
 
     return (
-        <div ref={containerRef} className="h-[300vh] relative bg-spectre-black">
-            <div className="sticky top-0 h-screen w-full overflow-hidden bg-black">
+        <motion.div
+            ref={containerRef}
+            className="h-[400vh] relative bg-[#050505]"
+            initial={{ opacity: 0, scale: 0.98, filter: "blur(10px)" }}
+            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+            transition={{ duration: 1.0, ease: "easeOut" }}
+        >
+            <div className="sticky top-0 h-screen w-full overflow-hidden bg-[#050505]">
                 <AnimatePresence>
                     {/* Theme Switch Overlay - only needed if we want to hide the swap */}
                     {/* We can optional disable this for faster feel, or keep it short */}
@@ -210,6 +228,17 @@ export default function ProductSequence({ product }: ProductSequenceProps) {
 
                 {/* BootLoader now dismisses as soon as Critical Path is ready */}
                 <BootLoader progress={progressValue} complete={isReady} skip={hasIntroPlayed} />
+
+                {/* Scroll Indicator */}
+                {!isMobile && isReady && hasIntroPlayed && (
+                    <motion.div
+                        style={{ opacity: scrollIndicatorOpacity }}
+                        className="absolute bottom-10 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-2 pointer-events-none mix-blend-difference"
+                    >
+                        <span className="text-[10px] font-mono tracking-[0.2em] text-white/50">SCROLL TO EXPLORE</span>
+                        <div className="w-[1px] h-8 bg-gradient-to-b from-white/0 via-white/50 to-white/0" />
+                    </motion.div>
+                )}
 
                 {isMobile ? (
                     // Mobile Video Player
@@ -234,8 +263,11 @@ export default function ProductSequence({ product }: ProductSequenceProps) {
                     />
                 )}
 
-                <TextOverlays scrollYProgress={scrollYProgress} product={product} />
+                {/* Vignette Overlay for "Floating" Look */}
+                <div className="absolute inset-0 pointer-events-none z-10 bg-[radial-gradient(circle_at_center,transparent_60%,#050505_100%)]" />
+
+                <TextOverlays scrollYProgress={smoothProgress} product={product} />
             </div>
-        </div>
+        </motion.div>
     );
 }

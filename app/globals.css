@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    @apply bg-black text-white;
+    @apply bg-[#050505] text-white;
   }
 
   ::selection {
@@ -27,6 +27,25 @@
 }
 
 @layer utilities {
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #050505;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }

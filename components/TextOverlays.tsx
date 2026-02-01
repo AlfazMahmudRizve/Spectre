@@ -7,21 +7,22 @@ export default function TextOverlays({ scrollYProgress, product }: { scrollYProg
 
 
     // Screen 1: Intro (0 - 20%)
+    // Beat A: Intro (0 - 20%)
     const opacity1 = useTransform(scrollYProgress, [0, 0.1, 0.2], [1, 1, 0]);
     const y1 = useTransform(scrollYProgress, [0, 0.2], [0, -50]);
-    const scale1 = useTransform(scrollYProgress, [0, 0.2], [1, 0.8]);
+    const scale1 = useTransform(scrollYProgress, [0, 0.2], [1, 0.9]);
 
-    // Screen 2: Explosion (30 - 50%)
-    const opacity2 = useTransform(scrollYProgress, [0.25, 0.35, 0.45, 0.55], [0, 1, 1, 0]);
-    const x2 = useTransform(scrollYProgress, [0.25, 0.55], [-50, 0]);
+    // Beat B: Phase 1 (25 - 45%) - "Explosion"
+    const opacity2 = useTransform(scrollYProgress, [0.25, 0.3, 0.4, 0.45], [0, 1, 1, 0]);
+    const x2 = useTransform(scrollYProgress, [0.25, 0.45], [-50, 0]);
 
-    // Screen 3: Details (60 - 80%)
-    const opacity3 = useTransform(scrollYProgress, [0.6, 0.7, 0.8], [0, 1, 0]);
-    const y3 = useTransform(scrollYProgress, [0.6, 0.8], [50, 0]);
+    // Beat C: Phase 2 (50 - 70%) - "Details"
+    const opacity3 = useTransform(scrollYProgress, [0.5, 0.55, 0.65, 0.7], [0, 1, 1, 0]);
+    const y3 = useTransform(scrollYProgress, [0.5, 0.7], [50, 0]);
 
-    // Screen 4: Reassembly (90 - 100%)
-    const opacity4 = useTransform(scrollYProgress, [0.85, 0.95], [0, 1]);
-    const scale4 = useTransform(scrollYProgress, [0.85, 1], [0.9, 1]);
+    // Beat D: CTA (75 - 95%) - "Reassembly"
+    const opacity4 = useTransform(scrollYProgress, [0.75, 0.8, 0.95], [0, 1, 1]); // Stays visible until end
+    const scale4 = useTransform(scrollYProgress, [0.75, 0.95], [0.95, 1]);
 
     return (
         <div className="absolute inset-0 pointer-events-none z-10 w-full h-full font-sans">
