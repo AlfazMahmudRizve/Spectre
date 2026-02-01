@@ -16,5 +16,14 @@ export default async function DashboardPage() {
     // Fetch Real Data
     const dbData = await getDashboardData();
 
-    return <DashboardClient initialData={dbData} user={session.user} />;
+    return (
+        <DashboardClient
+            initialOrders={dbData.orders}
+            initialUsers={dbData.users}
+            initialProducts={dbData.products}
+            // @ts-ignore
+            userRole={session.user.role || 'viewer'}
+            userName={session.user.name || 'Operative'}
+        />
+    );
 }
