@@ -59,9 +59,22 @@ export default function ProductSequence({ product }: ProductSequenceProps) {
 
     // --- Mobile: Video Logic ---
     const handleVideoLoad = () => {
-        setMobileLoaded(true);
-        if (!hasIntroPlayed) setHasIntroPlayed();
+        if (!mobileLoaded) {
+            setMobileLoaded(true);
+            if (!hasIntroPlayed) setHasIntroPlayed();
+        }
     };
+
+    // Fallback: Force mobile load after 2 seconds if video fails/stalls
+    useEffect(() => {
+        if (isMobile && !mobileLoaded) {
+            const timer = setTimeout(() => {
+                console.log("Mobile video load timeout - forcing access");
+                handleVideoLoad();
+            }, 2500);
+            return () => clearTimeout(timer);
+        }
+    }, [isMobile, mobileLoaded]);
 
     // Effect: Load Assets based on Device
     // This useEffect is now simplified as useSequenceLoader handles desktop loading
@@ -208,6 +221,8 @@ export default function ProductSequence({ product }: ProductSequenceProps) {
                         playsInline
                         preload="auto"
                         onCanPlayThrough={handleVideoLoad}
+                        onLoadedData={handleVideoLoad}
+                        onError={handleVideoLoad} // Fail gracefully
                     />
                 ) : (
                     // Desktop Canvas

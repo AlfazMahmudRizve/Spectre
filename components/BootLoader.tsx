@@ -11,6 +11,7 @@ interface BootLoaderProps {
 const bootLogs = [
     "INITIALIZING_KERNEL...",
     "LOADING_VRAM_BUFFERS...",
+    "SYSTEM_ARCHITECT: ALFAZ MAHMUD RIZVE...",
     "MOUNTING_FILE_SYSTEM...",
     "CHECKING_INTEGRITY...",
     "ESTABLISHING_SECURE_LINK...",

@@ -4,6 +4,7 @@ import { useCartStore } from '@/store/cartStore';
 import { useProductStore } from '@/store/productStore';
 import { ShoppingBag } from 'lucide-react';
 import GhostButton from './ui/GhostButton';
+import Image from 'next/image';
 
 export default function Navbar() {
     const { playHover, playClick, isMuted, toggleMute } = useSound();
@@ -19,31 +20,45 @@ export default function Navbar() {
     const navLinks = [
         {
             label: 'HEADSET',
-            action: () => { setActiveProduct('spectre-carbon'); setView('product'); }
+            action: () => {
+                setActiveProduct('spectre-carbon');
+                setView('product');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
         },
         {
             label: 'KEYBOARD',
-            action: () => { setActiveProduct('spectre-one'); setView('product'); }
+            action: () => {
+                setActiveProduct('spectre-one');
+                setView('product');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
         },
         {
             label: 'PRODUCTS',
-            action: () => { setView('grid'); }
+            action: () => {
+                setView('grid');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
         },
     ];
 
     return (
         <nav className="fixed top-0 left-0 w-full z-50 px-6 py-4 flex justify-between items-center bg-black/60 backdrop-blur-xl border-b border-white/10 transition-all duration-300">
             {/* Logo */}
+
             <div
                 className="flex items-center gap-3 cursor-pointer group"
                 onMouseEnter={playHover}
                 onClick={handleLogoClick}
             >
-                <div className="relative w-8 h-8 flex items-center justify-center">
-                    <div className="absolute inset-0 bg-[#00F0FF] blur-md opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
-                    <div className="relative w-full h-full bg-black border border-[#00F0FF] flex items-center justify-center">
-                        <span className="text-[#00F0FF] font-bold text-xs">S</span>
-                    </div>
+                <div className="relative w-10 h-10 flex items-center justify-center">
+                    <Image
+                        src="/images/logo.png"
+                        alt="Spectre Logo"
+                        fill
+                        className="object-contain drop-shadow-[0_0_10px_rgba(0,240,255,0.5)] group-hover:drop-shadow-[0_0_20px_rgba(0,240,255,0.8)] transition-all duration-300"
+                    />
                 </div>
                 <span className="font-grotesk font-bold text-xl tracking-[0.2em] text-white group-hover:text-[#00F0FF] transition-colors duration-300">
                     SPECTRE

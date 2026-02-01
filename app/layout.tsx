@@ -24,6 +24,12 @@ export const metadata: Metadata = {
     description: 'Precision engineered. Gasket mounted. Zero-gravity acoustics.',
     type: 'website',
   },
+  authors: [{ name: 'Alfaz Mahmud Rizve', url: 'https://whoisalfaz.me' }],
+  icons: {
+    icon: '/icon.png',
+    shortcut: '/icon.png',
+    apple: '/icon.png',
+  },
 };
 
 export default function RootLayout({
