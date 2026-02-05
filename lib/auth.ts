@@ -35,7 +35,7 @@ export const authOptions: NextAuthOptions = {
                 }
 
                 // 2. Failsafe: Hardcoded Admin (for serverless environments where local file DB might fail)
-                if (credentials.email === 'admin@spectre.net' && credentials.password === 'ghost') {
+                if (credentials.email?.toLowerCase() === 'admin@spectre.net' && credentials.password === 'ghost') {
                     return {
                         id: 'master-admin',
                         name: 'Commander',
