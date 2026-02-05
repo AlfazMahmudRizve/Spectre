@@ -4,18 +4,8 @@ import { useCartStore } from '@/store/cartStore';
 
 import { useState, useEffect } from 'react';
 
-const defaultAccessories = [
-    {
-        id: 'mousepad',
-        name: 'SPECTRE MAT',
-        price: '49',
-        image: '/images/spectre-carbon/1.webp',
-        description: 'Micro-textured speed surface.'
-    }
-];
-
 export default function StaticGrid() {
-    const [items, setItems] = useState<any[]>(defaultAccessories);
+    const [items, setItems] = useState<any[]>([]);
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -23,18 +13,20 @@ export default function StaticGrid() {
                 const res = await fetch('/api/products');
                 if (res.ok) {
                     const dbProducts = await res.json();
-                    // Filter out core products if needed, or just append everything unique
-                    // For now, let's just append custom added products
-                    const formattedDetails = dbProducts.map((p: any) => ({
-                        id: p.id,
-                        name: p.name,
-                        price: p.price.toString(),
-                        image: p.image || '/images/spectre-one/20.webp', // Fallback
-                        description: p.description || 'Classified specs.'
-                    }));
 
-                    // Simple merge (avoiding ID collision if possible)
-                    setItems([...defaultAccessories, ...formattedDetails.filter((p: any) => !['spectre-carbon', 'spectre-one', 'spectre-mat'].includes(p.id))]);
+                    // Filter out Hero Products (displayed in main sequence)
+                    // Everything else (Accessories + New Products) goes to Grid
+                    const gridItems = dbProducts
+                        .filter((p: any) => !['spectre-carbon', 'spectre-one'].includes(p.id))
+                        .map((p: any) => ({
+                            id: p.id,
+                            name: p.name,
+                            price: p.price.toString(),
+                            image: p.image || '/images/spectre-one/20.webp',
+                            description: p.description || 'Classified specs.'
+                        }));
+
+                    setItems(gridItems);
                 }
             } catch (e) {
                 console.error("Failed to load inventory", e);
