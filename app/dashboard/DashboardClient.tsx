@@ -51,19 +51,23 @@ export default function DashboardClient({
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     name: newProduct.name,
-                    price: parseFloat(newProduct.price),
-                    stock: parseInt(newProduct.stock),
+                    price: Number(newProduct.price) || 0,
+                    stock: Number(newProduct.stock) || 0,
                     image: newProduct.image || '/images/spectre-carbon/1.webp', // Fallback
                     description: newProduct.description
                 })
             });
 
             if (res.ok) {
-                const addedProduct = await res.json();
-                setProducts([...products, addedProduct]); // Update local list
-                setIsAddingProduct(false);
-                setNewProduct({ name: '', price: '', stock: '', image: '', description: '' });
-                alert('Arsenal Updated.');
+                const data = await res.json();
+                if (data.success && data.product) {
+                    setProducts([...products, data.product]); // Update local list correctly
+                    setIsAddingProduct(false);
+                    setNewProduct({ name: '', price: '', stock: '', image: '', description: '' });
+                    alert('Arsenal Updated.');
+                } else {
+                    alert('Failed to authorize asset: Invalid response.');
+                }
             } else {
                 alert('Failed to authorize new asset.');
             }
@@ -207,13 +211,52 @@ export default function DashboardClient({
                                         />
                                     </div>
                                     <div className="col-span-2 md:col-span-1">
-                                        <label className="text-[10px] text-gray-500 block mb-2">IMAGE URL</label>
-                                        <input
-                                            value={newProduct.image}
-                                            onChange={(e) => setNewProduct({ ...newProduct, image: e.target.value })}
-                                            className="w-full bg-black border border-white/20 p-2 text-xs text-white focus:border-[#00F0FF] outline-none"
-                                            placeholder="/images/..."
-                                        />
+                                        <label className="text-[10px] text-gray-500 block mb-2">PRODUCT IMAGE</label>
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={async (e) => {
+                                                    const file = e.target.files?.[0];
+                                                    if (!file) return;
+
+                                                    // Optimistic UI or Loading state could go here
+                                                    const formData = new FormData();
+                                                    formData.append('file', file);
+
+                                                    try {
+                                                        const res = await fetch('/api/upload', {
+                                                            method: 'POST',
+                                                            body: formData
+                                                        });
+                                                        const data = await res.json();
+                                                        if (data.success) {
+                                                            setNewProduct(prev => ({ ...prev, image: data.url }));
+                                                        } else {
+                                                            alert('Upload failed');
+                                                        }
+                                                    } catch (err) {
+                                                        console.error(err);
+                                                        alert('Upload error');
+                                                    }
+                                                }}
+                                                className="hidden"
+                                                id="file-upload"
+                                            />
+                                            <label
+                                                htmlFor="file-upload"
+                                                className="flex-1 bg-black border border-white/20 p-2 text-xs text-gray-400 cursor-pointer hover:border-[#00F0FF] hover:text-white transition-colors truncate"
+                                            >
+                                                {newProduct.image ? newProduct.image.split('/').pop() : "SELECT FILE..."}
+                                            </label>
+
+                                            {/* Hidden fallback for manual URL override if needed, or just keep it simple */}
+                                        </div>
+                                        {newProduct.image && (
+                                            <div className="mt-2 text-[10px] text-[#00F0FF]">
+                                                ✓ READY: {newProduct.image}
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="col-span-2">
                                         <label className="text-[10px] text-gray-500 block mb-2">DESCRIPTION</label>

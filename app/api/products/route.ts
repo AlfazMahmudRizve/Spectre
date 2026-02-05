@@ -32,6 +32,7 @@ export async function POST(req: Request) {
 
         return NextResponse.json({ success: true, product: newProduct });
     } catch (error) {
+        console.error("API Error adding product:", error);
         return NextResponse.json({ success: false, error: 'Failed to add product' }, { status: 500 });
     }
 }

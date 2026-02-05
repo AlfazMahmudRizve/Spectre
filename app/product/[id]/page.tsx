@@ -15,9 +15,10 @@ export async function generateStaticParams() {
     }));
 }
 
-export default async function ProductPage({ params }: { params: { id: string } }) {
+export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
     const products = await getProducts();
-    const product = products.find(p => p.id === params.id);
+    const product = products.find(p => p.id === id);
 
     if (!product) {
         notFound();

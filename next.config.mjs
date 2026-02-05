@@ -1,7 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // output: 'export', // Disabled to allow dynamic NextAuth routes
-  // images: { unoptimized: true }, // Disabled to allow Vercel Image Optimization
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**', // Allow all for now directly to prevent crashes
+      },
+    ],
+  },
 };
 
 export default nextConfig;

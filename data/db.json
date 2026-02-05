@@ -47,6 +47,24 @@
       "price": 49,
       "stock": 500,
       "status": "In Stock"
+    },
+    {
+      "name": "araf",
+      "price": 999,
+      "stock": 1,
+      "image": "https://whoisalfaz.me/_next/image/?url=%2Fprofile.jpg&w=384&q=75",
+      "description": "no details",
+      "id": "spectre-e8aap1",
+      "status": "In Stock"
+    },
+    {
+      "name": "lalal",
+      "price": 1212,
+      "stock": 545,
+      "image": "/uploads/1770304140131-page-cover.png",
+      "description": "dasdas",
+      "id": "spectre-8qrubb",
+      "status": "In Stock"
     }
   ],
   "orders": []
