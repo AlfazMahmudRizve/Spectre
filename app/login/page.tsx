@@ -33,22 +33,13 @@ export default function LoginPage() {
                 setLoading(false);
             } else {
                 // Successful Login
-                console.log("Login Success, checking clearance...");
+                console.log("Login Success. Redirecting to Field...");
 
-                // Fetch session to check role
-                const session = await getSession();
-                // @ts-ignore
-                const role = session?.user?.role;
+                // Universal Redirect: Everyone goes to Home
+                // Admins will see the Dashboard link in the Navbar
+                window.location.assign('/');
 
-                if (role === 'admin') {
-                    console.log("Admin Clearance Verified. Initiating Command Center...");
-                    window.location.assign('/dashboard');
-                } else {
-                    console.log("Standard Operative. Redirecting to Field...");
-                    window.location.assign('/');
-                }
-
-                // Fallback
+                // Fallback in UI if it hangs
                 setError('REDIRECTING... CLICK HERE IF STUCK');
                 // @ts-ignore
                 if (window) window.dashboardFallback = () => window.location.href = '/';
