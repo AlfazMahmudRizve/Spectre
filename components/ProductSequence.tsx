@@ -215,11 +215,16 @@ export default function ProductSequence({ product }: ProductSequenceProps) {
     return (
         <motion.div
             ref={containerRef}
-            className="h-[400vh] relative bg-[#050505]"
+            className="h-[400vh] relative bg-[#050505] snap-y snap-mandatory"
             initial={{ opacity: 0, scale: 0.98, filter: "blur(10px)" }}
             animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
             transition={{ duration: 1.0, ease: "easeOut" }}
         >
+            {/* Scroll Snap Points */}
+            <div className="absolute top-0 w-full h-screen snap-start pointer-events-none" />
+            <div className="absolute top-[100vh] w-full h-screen snap-start pointer-events-none" />
+            <div className="absolute top-[200vh] w-full h-screen snap-start pointer-events-none" />
+            <div className="absolute top-[300vh] w-full h-screen snap-start pointer-events-none" />
             <div className="sticky top-0 h-screen w-full overflow-hidden bg-[#050505]">
                 <AnimatePresence>
                     {/* Theme Switch Overlay - only needed if we want to hide the swap */}
