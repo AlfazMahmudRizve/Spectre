@@ -31,7 +31,8 @@ export default function DashboardClient({
         name: '',
         price: '',
         stock: '',
-        image: ''
+        image: '',
+        description: ''
     });
 
     const filteredOrders = orders.filter(order =>
@@ -52,7 +53,8 @@ export default function DashboardClient({
                     name: newProduct.name,
                     price: parseFloat(newProduct.price),
                     stock: parseInt(newProduct.stock),
-                    image: newProduct.image || '/images/spectre-carbon/1.webp' // Fallback
+                    image: newProduct.image || '/images/spectre-carbon/1.webp', // Fallback
+                    description: newProduct.description
                 })
             });
 
@@ -60,7 +62,7 @@ export default function DashboardClient({
                 const addedProduct = await res.json();
                 setProducts([...products, addedProduct]); // Update local list
                 setIsAddingProduct(false);
-                setNewProduct({ name: '', price: '', stock: '', image: '' });
+                setNewProduct({ name: '', price: '', stock: '', image: '', description: '' });
                 alert('Arsenal Updated.');
             } else {
                 alert('Failed to authorize new asset.');
@@ -213,6 +215,15 @@ export default function DashboardClient({
                                             placeholder="/images/..."
                                         />
                                     </div>
+                                    <div className="col-span-2">
+                                        <label className="text-[10px] text-gray-500 block mb-2">DESCRIPTION</label>
+                                        <textarea
+                                            value={newProduct.description}
+                                            onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+                                            className="w-full bg-black border border-white/20 p-2 text-xs text-white focus:border-[#00F0FF] outline-none h-20"
+                                            placeholder="Detailed specs..."
+                                        />
+                                    </div>
                                     <div className="col-span-2 flex gap-4 mt-2">
                                         <button type="submit" className="bg-[#00F0FF] text-black px-6 py-2 text-xs font-bold hover:bg-white transition-colors">AUTHORIZE ASSET</button>
                                         <button type="button" onClick={() => setIsAddingProduct(false)} className="text-gray-500 text-xs hover:text-white transition-colors">CANCEL</button>
@@ -274,8 +285,8 @@ export default function DashboardClient({
                                     <div className="col-span-2 text-[10px] text-gray-500">{new Date(order.createdAt).toLocaleDateString()}</div>
                                     <div className="col-span-2">
                                         <span className={`px-2 py-1 rounded text-[10px] font-bold ${order.status === 'SHIPPED' ? 'bg-green-500/20 text-green-500' :
-                                                order.status === 'PROCESSING' ? 'bg-blue-500/20 text-blue-500' :
-                                                    'bg-yellow-500/20 text-yellow-500'
+                                            order.status === 'PROCESSING' ? 'bg-blue-500/20 text-blue-500' :
+                                                'bg-yellow-500/20 text-yellow-500'
                                             }`}>
                                             {order.status}
                                         </span>

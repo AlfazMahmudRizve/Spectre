@@ -2,6 +2,8 @@
 import { motion } from 'framer-motion';
 import { useCartStore } from '@/store/cartStore';
 
+import Link from 'next/link';
+
 import { useState, useEffect } from 'react';
 
 export default function StaticGrid() {
@@ -48,42 +50,35 @@ export default function StaticGrid() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {items.map((item, i) => (
-                        <motion.div
-                            key={item.id}
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            transition={{ delay: i * 0.1 }}
-                            className="group relative bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-[#00F0FF]/50 transition-colors duration-300 cursor-pointer"
-                            onClick={() => {
-                                useCartStore.getState().addToCart({
-                                    id: item.id,
-                                    name: item.name,
-                                    price: parseInt(item.price),
-                                    image: item.image,
-                                    quantity: 1,
-                                    edition: 'STANDARD ISSUE'
-                                });
-                            }}
-                        >
-                            <div className="aspect-square relative overflow-hidden bg-white/5">
-                                <img
-                                    src={item.image}
-                                    alt={item.name}
-                                    className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-100"
-                                />
-                                {/* Add overlay hint */}
-                                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                    <span className="text-[#00F0FF] font-mono text-sm tracking-widest border border-[#00F0FF] px-4 py-2 bg-black/80 backdrop-blur">ADD TO CART</span>
+                        <Link href={`/product/${item.id}`} key={item.id} className="block group">
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                transition={{ delay: i * 0.1 }}
+                                className="relative bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-[#00F0FF]/50 transition-colors duration-300 cursor-pointer h-full flex flex-col"
+                            >
+                                <div className="aspect-square relative overflow-hidden bg-white/5">
+                                    <img
+                                        src={item.image}
+                                        alt={item.name}
+                                        className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-100"
+                                    />
+                                    {/* Add overlay hint */}
+                                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                        <span className="text-[#00F0FF] font-mono text-sm tracking-widest border border-[#00F0FF] px-4 py-2 bg-black/80 backdrop-blur">VIEW DATA</span>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="p-8">
-                                <div className="flex justify-between items-baseline mb-2">
-                                    <h3 className="text-xl font-bold font-grotesk text-white group-hover:text-[#00F0FF] transition-colors">{item.name}</h3>
-                                    <span className="font-mono text-sm text-gray-400">${item.price}</span>
+                                <div className="p-8 flex-1 flex flex-col justify-between">
+                                    <div>
+                                        <div className="flex justify-between items-baseline mb-2">
+                                            <h3 className="text-xl font-bold font-grotesk text-white group-hover:text-[#00F0FF] transition-colors line-clamp-1">{item.name}</h3>
+                                            <span className="font-mono text-sm text-gray-400">${item.price}</span>
+                                        </div>
+                                        <p className="text-sm font-mono text-gray-500 line-clamp-2">{item.description}</p>
+                                    </div>
                                 </div>
-                                <p className="text-sm font-mono text-gray-500">{item.description}</p>
-                            </div>
-                        </motion.div>
+                            </motion.div>
+                        </Link>
                     ))}
                 </div>
             </div>

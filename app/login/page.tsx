@@ -33,7 +33,6 @@ export default function LoginPage() {
                 setLoading(false);
             } else {
                 // Successful Login
-                console.log("Login Success. Redirecting to Field...");
 
                 // Universal Redirect: Everyone goes to Home
                 // Admins will see the Dashboard link in the Navbar

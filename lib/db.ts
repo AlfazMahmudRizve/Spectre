@@ -31,6 +31,8 @@ export interface Product {
     price: number;
     stock: number;
     status: string;
+    image?: string;
+    description?: string;
 }
 
 interface DB {
