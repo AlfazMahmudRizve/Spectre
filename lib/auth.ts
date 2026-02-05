@@ -73,7 +73,7 @@ export const authOptions: NextAuthOptions = {
                 token.id = user.id;
 
                 // FORCE ADMIN ROLE FOR MASTER EMAIL
-                if (user.email === 'admin@spectre.net') {
+                if (user.email?.toLowerCase() === 'admin@spectre.net') {
                     token.role = 'admin';
                 } else {
                     // Try DB for others, fallback to customer

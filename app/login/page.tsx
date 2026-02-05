@@ -39,6 +39,10 @@ export default function LoginPage() {
                 const session = await getSession();
                 // @ts-ignore
                 const role = session?.user?.role;
+                const email = session?.user?.email;
+
+                // Visual Debug (Remove later)
+                // alert(`DEBUG: Logged in as ${email} with Role: ${role}`);
 
                 if (role === 'admin') {
                     console.log("Admin Clearance Verified. Initiating Command Center...");
