@@ -16,17 +16,14 @@ export default function StaticGrid() {
                 if (res.ok) {
                     const dbProducts = await res.json();
 
-                    // Filter out Hero Products (displayed in main sequence)
-                    // Everything else (Accessories + New Products) goes to Grid
-                    const gridItems = dbProducts
-                        .filter((p: any) => !['spectre-carbon', 'spectre-one'].includes(p.id))
-                        .map((p: any) => ({
-                            id: p.id,
-                            name: p.name,
-                            price: p.price.toString(),
-                            image: p.image || '/images/spectre-one/20.webp',
-                            description: p.description || 'Classified specs.'
-                        }));
+                    // Show ALL products in the grid
+                    const gridItems = dbProducts.map((p: any) => ({
+                        id: p.id,
+                        name: p.name,
+                        price: p.price.toString(),
+                        image: p.image || '/images/spectre-one/20.webp',
+                        description: p.description || 'Classified specs.'
+                    }));
 
                     setItems(gridItems);
                 }
@@ -45,7 +42,7 @@ export default function StaticGrid() {
                     whileInView={{ opacity: 1, y: 0 }}
                     className="text-4xl md:text-6xl font-grotesk font-bold text-white mb-16 text-center"
                 >
-                    ESSENTIALS
+                    FULL ARSENAL
                 </motion.h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
