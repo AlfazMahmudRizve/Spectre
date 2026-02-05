@@ -1,7 +1,12 @@
 import fs from 'fs/promises';
 import path from 'path';
 
-const DB_PATH = path.join(process.cwd(), 'data', 'db.json');
+// Adapting for Vercel's Read-Only Filesystem
+// We'll use /tmp (writable) in production/serverless, and data/db.json in dev.
+const DATA_DIR = path.join(process.cwd(), 'data');
+const DB_FILENAME = 'db.json';
+const TMP_DB_PATH = path.join('/tmp', DB_FILENAME);
+const LOCAL_DB_PATH = path.join(DATA_DIR, DB_FILENAME);
 
 // Types
 export interface User {
@@ -41,19 +46,50 @@ interface DB {
     orders: Order[];
 }
 
+async function getDbPath(): Promise<string> {
+    // In development (local), just use the mutable local file
+    if (process.env.NODE_ENV === 'development') {
+        return LOCAL_DB_PATH;
+    }
+
+    // In production (Vercel), copy to /tmp if not exists to allow writing
+    try {
+        await fs.access(TMP_DB_PATH);
+        return TMP_DB_PATH;
+    } catch {
+        // File doesn't exist in /tmp yet, copy from source
+        try {
+            const initialData = await fs.readFile(LOCAL_DB_PATH, 'utf-8');
+            await fs.writeFile(TMP_DB_PATH, initialData, 'utf-8');
+            console.log('Initialized /tmp/db.json from source');
+            return TMP_DB_PATH;
+        } catch (err) {
+            console.warn('Could not initialize /tmp DB, falling back to read-only source or empty', err);
+            return LOCAL_DB_PATH; // Fallback (might fail on write)
+        }
+    }
+}
+
 // Helpers
 async function readDb(): Promise<DB> {
     try {
-        const data = await fs.readFile(DB_PATH, 'utf-8');
+        const dbPath = await getDbPath();
+        const data = await fs.readFile(dbPath, 'utf-8');
         return JSON.parse(data);
     } catch (error) {
-        // If file doesn't exist, return default empty structure
+        console.error("Error reading DB:", error);
         return { users: [], products: [], orders: [] };
     }
 }
 
 async function writeDb(data: DB): Promise<void> {
-    await fs.writeFile(DB_PATH, JSON.stringify(data, null, 2), 'utf-8');
+    try {
+        const dbPath = await getDbPath();
+        await fs.writeFile(dbPath, JSON.stringify(data, null, 2), 'utf-8');
+    } catch (error) {
+        console.error("Error writing DB:", error);
+        throw new Error("Database write failed");
+    }
 }
 
 // --- Data Access Layer ---
@@ -115,6 +151,17 @@ export async function addProduct(product: Omit<Product, 'id' | 'status'>): Promi
     db.products.push(newProduct);
     await writeDb(db);
     return newProduct;
+}
+
+export async function deleteProduct(id: string): Promise<boolean> {
+    const db = await readDb();
+    const initialLength = db.products.length;
+    db.products = db.products.filter(p => p.id !== id);
+    if (db.products.length !== initialLength) {
+        await writeDb(db);
+        return true;
+    }
+    return false;
 }
 
 export async function getProducts(): Promise<Product[]> {
