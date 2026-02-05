@@ -34,12 +34,15 @@ export default function LoginPage() {
             } else {
                 // Successful Login
                 console.log("Login Success, redirecting...");
-                // Force Hard Redirect
-                window.location.assign('/dashboard');
+
+                // Redirect to Home by default (Safe for everyone)
+                // Admin can navigate to Dashboard via Navbar if needed
+                window.location.assign('/');
+
                 // Fallback in UI if it hangs
                 setError('REDIRECTING... CLICK HERE IF STUCK');
                 // @ts-ignore
-                if (window) window.dashboardFallback = () => window.location.href = '/dashboard';
+                if (window) window.dashboardFallback = () => window.location.href = '/';
             }
         } catch (err) {
             console.error("Sign In Exception:", err);
