@@ -216,29 +216,18 @@ export default function DashboardClient({
                                             <input
                                                 type="file"
                                                 accept="image/*"
-                                                onChange={async (e) => {
+                                                onChange={(e) => {
                                                     const file = e.target.files?.[0];
                                                     if (!file) return;
 
-                                                    // Optimistic UI or Loading state could go here
-                                                    const formData = new FormData();
-                                                    formData.append('file', file);
-
-                                                    try {
-                                                        const res = await fetch('/api/upload', {
-                                                            method: 'POST',
-                                                            body: formData
-                                                        });
-                                                        const data = await res.json();
-                                                        if (data.success) {
-                                                            setNewProduct(prev => ({ ...prev, image: data.url }));
-                                                        } else {
-                                                            alert('Upload failed');
-                                                        }
-                                                    } catch (err) {
-                                                        console.error(err);
-                                                        alert('Upload error');
-                                                    }
+                                                    // Vercel Fix: Use Base64 encoding instead of fs.write
+                                                    // This stores the image data directly in the string
+                                                    const reader = new FileReader();
+                                                    reader.onloadend = () => {
+                                                        const base64String = reader.result as string;
+                                                        setNewProduct(prev => ({ ...prev, image: base64String }));
+                                                    };
+                                                    reader.readAsDataURL(file);
                                                 }}
                                                 className="hidden"
                                                 id="file-upload"
@@ -247,7 +236,7 @@ export default function DashboardClient({
                                                 htmlFor="file-upload"
                                                 className="flex-1 bg-black border border-white/20 p-2 text-xs text-gray-400 cursor-pointer hover:border-[#00F0FF] hover:text-white transition-colors truncate"
                                             >
-                                                {newProduct.image ? newProduct.image.split('/').pop() : "SELECT FILE..."}
+                                                {newProduct.image ? (newProduct.image.startsWith('data:') ? 'IMAGE SELECTED' : newProduct.image.split('/').pop()) : "SELECT FILE..."}
                                             </label>
 
                                             {/* Hidden fallback for manual URL override if needed, or just keep it simple */}
