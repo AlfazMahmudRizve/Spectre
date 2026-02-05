@@ -1,6 +1,6 @@
 'use client';
 
-import { signIn } from 'next-auth/react';
+import { signIn, getSession } from 'next-auth/react';
 import { useState } from 'react';
 import { Lock, Cpu, Chrome, AlertCircle, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -33,13 +33,22 @@ export default function LoginPage() {
                 setLoading(false);
             } else {
                 // Successful Login
-                console.log("Login Success, redirecting...");
+                console.log("Login Success, checking clearance...");
 
-                // Redirect to Home by default (Safe for everyone)
-                // Admin can navigate to Dashboard via Navbar if needed
-                window.location.assign('/');
+                // Fetch session to check role
+                const session = await getSession();
+                // @ts-ignore
+                const role = session?.user?.role;
 
-                // Fallback in UI if it hangs
+                if (role === 'admin') {
+                    console.log("Admin Clearance Verified. Initiating Command Center...");
+                    window.location.assign('/dashboard');
+                } else {
+                    console.log("Standard Operative. Redirecting to Field...");
+                    window.location.assign('/');
+                }
+
+                // Fallback
                 setError('REDIRECTING... CLICK HERE IF STUCK');
                 // @ts-ignore
                 if (window) window.dashboardFallback = () => window.location.href = '/';
