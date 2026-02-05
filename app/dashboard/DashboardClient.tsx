@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Shield, Activity, Users, Box, Search, Plus, Package, LayoutDashboard, ArrowLeft } from 'lucide-react';
+import { Shield, Activity, Users, Box, Search, Plus, Package, LayoutDashboard, ArrowLeft, Trash2, CheckCircle, AlertCircle, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -21,6 +21,7 @@ export default function DashboardClient({
     const [activeTab, setActiveTab] = useState('overview');
     const [orders, setOrders] = useState(initialOrders);
     const [products, setProducts] = useState(initialProducts); // Local state for products
+    const [notification, setNotification] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
 
     // Search / Filter States
     const [searchQuery, setSearchQuery] = useState('');
@@ -40,10 +41,13 @@ export default function DashboardClient({
         order.email.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
+    const showNotification = (message: string, type: 'success' | 'error') => {
+        setNotification({ message, type });
+        setTimeout(() => setNotification(null), 3000);
+    };
+
     const handleAddProduct = async (e: React.FormEvent) => {
         e.preventDefault();
-        // In a real app, upload image -> get URL.
-        // Here we just use the text field.
 
         try {
             const res = await fetch('/api/products', {
@@ -64,21 +68,31 @@ export default function DashboardClient({
                     setProducts([...products, data.product]); // Update local list correctly
                     setIsAddingProduct(false);
                     setNewProduct({ name: '', price: '', stock: '', image: '', description: '' });
-                    alert('Arsenal Updated.');
+                    showNotification('Asset successfully enlisted.', 'success');
                 } else {
-                    alert('Failed to authorize asset: Invalid response.');
+                    showNotification('Authorization failed: Invalid response.', 'error');
                 }
             } else {
-                alert('Failed to authorize new asset.');
+                showNotification('Failed to authorize new asset.', 'error');
             }
         } catch (error) {
             console.error(error);
-            alert('System Error.');
+            showNotification('System Error: connection lost.', 'error');
         }
     };
 
     return (
         <div className="min-h-screen bg-[#050505] text-white font-mono selection:bg-[#00F0FF] selection:text-black">
+            {/* Notification Toast */}
+            {notification && (
+                <div className={`fixed bottom-6 right-6 z-[100] px-4 py-3 rounded border flex items-center gap-3 shadow-2xl animate-in slide-in-from-bottom-2 fade-in bg-black/90 backdrop-blur ${notification.type === 'success' ? 'border-[#00F0FF] text-[#00F0FF]' : 'border-red-500 text-red-500'
+                    }`}>
+                    {notification.type === 'success' ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
+                    <span className="text-xs font-bold font-mono uppercase">{notification.message}</span>
+                    <button onClick={() => setNotification(null)} className="ml-2 hover:opacity-75"><X size={14} /></button>
+                </div>
+            )}
+
             {/* Sidebar */}
             <aside className="fixed left-0 top-0 h-full w-64 bg-black/40 backdrop-blur-xl border-r border-white/10 z-50">
                 <div className="p-8 border-b border-white/10">
@@ -293,13 +307,36 @@ export default function DashboardClient({
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             {products.map((product) => (
-                                <div key={product.id} className="bg-white/5 border border-white/10 rounded p-4 flex gap-4 group hover:border-[#00F0FF]/50 transition-colors">
-                                    <div className="w-20 h-20 bg-black rounded relative overflow-hidden">
+                                <div key={product.id} className="bg-white/5 border border-white/10 rounded p-4 flex gap-4 group hover:border-[#00F0FF]/50 transition-colors relative">
+                                    <div className="w-20 h-20 bg-black rounded relative overflow-hidden flex-shrink-0">
                                         <Image src={product.image || '/images/spectre-carbon/1.webp'} alt={product.name} fill className="object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
                                     </div>
-                                    <div>
-                                        <h4 className="font-bold text-white text-sm">{product.name}</h4>
-                                        <p className="text-[#00F0FF] text-xs font-mono mt-1">${product.price}</p>
+                                    <div className="flex-1 flex flex-col justify-between">
+                                        <div>
+                                            <div className="flex justify-between items-start">
+                                                <h4 className="font-bold text-white text-sm">{product.name}</h4>
+                                                <button
+                                                    onClick={async () => {
+                                                        if (!confirm('CONFIRM DELETION: This action cannot be undone.')) return;
+                                                        try {
+                                                            const res = await fetch(`/api/products?id=${product.id}`, { method: 'DELETE' });
+                                                            if (res.ok) {
+                                                                setProducts(products.filter(p => p.id !== product.id));
+                                                                showNotification('Asset decommissioned.', 'success');
+                                                            } else {
+                                                                showNotification('Decommission failed.', 'error');
+                                                            }
+                                                        } catch (err) {
+                                                            showNotification('System Error.', 'error');
+                                                        }
+                                                    }}
+                                                    className="text-gray-600 hover:text-red-500 transition-colors"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
+                                            <p className="text-[#00F0FF] text-xs font-mono mt-1">${product.price}</p>
+                                        </div>
                                         <div className="flex items-center gap-2 mt-2">
                                             <div className={`w-1.5 h-1.5 rounded-full ${product.stock > 0 ? 'bg-green-500' : 'bg-red-500'}`} />
                                             <span className="text-[10px] text-gray-400">{product.stock} UNITS</span>
