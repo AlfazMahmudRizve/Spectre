@@ -21,7 +21,6 @@ export interface Product {
     folder: string;
     fileExtension: string;
     frameCount: number; // New field
-    mobileVideo: string;
     accentColor: string;
     specs: ProductSpec[]; // Generic array
     phases: ProductPhase[]; // Storytelling phases
@@ -45,7 +44,6 @@ export const products: Product[] = [
         folder: '/images/spectre-one',
         fileExtension: 'webp',
         frameCount: 218,
-        mobileVideo: '/videos/cyber_mobile.mp4',
         accentColor: '#00F0FF',
         specs: [
             { label: 'LAYOUT', value: '65%' },
@@ -88,7 +86,6 @@ export const products: Product[] = [
         folder: '/images/spectre-carbon',
         fileExtension: 'webp',
         frameCount: 120,
-        mobileVideo: '/videos/cyber_mobile.mp4',
         accentColor: '#10b981',
         specs: [
             { label: 'MATERIAL', value: 'FORGED CARBON' },

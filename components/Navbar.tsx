@@ -46,7 +46,6 @@ export default function Navbar() {
         },
     ];
 
-    // @ts-ignore
     if (session?.user?.role === 'admin') {
         navLinks.push({
             label: 'DASHBOARD',
