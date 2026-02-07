@@ -5,6 +5,7 @@ interface SequenceLoaderResult {
     progress: number;
     isCriticalLoaded: boolean;
     isFullLoaded: boolean;
+    isFirstFrameLoaded: boolean;
 }
 
 export function useSequenceLoader(
@@ -17,6 +18,7 @@ export function useSequenceLoader(
     const [progress, setProgress] = useState(0);
     const [isCriticalLoaded, setIsCriticalLoaded] = useState(false);
     const [isFullLoaded, setIsFullLoaded] = useState(false);
+    const [isFirstFrameLoaded, setIsFirstFrameLoaded] = useState(false);
     const abortControllerRef = useRef<AbortController | null>(null);
 
     const loadSequence = useCallback(async () => {
@@ -32,6 +34,7 @@ export function useSequenceLoader(
         setProgress(0);
         setIsCriticalLoaded(false);
         setIsFullLoaded(false);
+        setIsFirstFrameLoaded(false);
 
         let loadedCritical = 0;
 
@@ -44,6 +47,7 @@ export function useSequenceLoader(
                 img.onload = () => {
                     if (controller.signal.aborted) return;
                     framesRef.current[index] = img;
+                    if (index === 0) setIsFirstFrameLoaded(true);
                     resolve();
                 };
 
@@ -112,6 +116,7 @@ export function useSequenceLoader(
         frames: framesRef,
         progress, // 0-100 based on Critical Path
         isCriticalLoaded,
-        isFullLoaded
+        isFullLoaded,
+        isFirstFrameLoaded
     };
 }

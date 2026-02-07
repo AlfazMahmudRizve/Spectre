@@ -8,6 +8,9 @@ import { useProductStore } from '@/store/productStore';
 
 export default function SoundTest() {
     const { activeProduct } = useProductStore();
+
+    if (!activeProduct) return null;
+
     const [mode, setMode] = useState<'linear' | 'tactile'>('linear');
     const [isPlaying, setIsPlaying] = useState(false);
     const soundRef = useRef<Howl | null>(null);

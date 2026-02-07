@@ -18,6 +18,15 @@ const config: Config = {
                 grotesk: ['var(--font-space-grotesk)'],
                 inter: ['var(--font-inter)'],
             },
+            animation: {
+                'scanline': 'scanline 2s linear infinite',
+            },
+            keyframes: {
+                scanline: {
+                    '0%': { transform: 'translateX(-100%)' },
+                    '100%': { transform: 'translateX(100%)' },
+                }
+            },
         },
     },
     plugins: [],

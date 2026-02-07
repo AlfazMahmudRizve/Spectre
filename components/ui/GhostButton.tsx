@@ -20,7 +20,7 @@ export default function GhostButton({
     ...props
 }: GhostButtonProps) {
     const { activeProduct } = useProductStore();
-    const accentColor = activeProduct.accentColor;
+    const accentColor = activeProduct?.accentColor || '#FFFFFF';
     const ref = useRef<HTMLButtonElement>(null);
     const [position, setPosition] = useState({ x: 0, y: 0 });
 

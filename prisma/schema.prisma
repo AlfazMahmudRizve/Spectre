@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id            String   @id @default(cuid())
+  slug          String   @unique // e.g. "spectre-one"
+  
+  // Core Info
+  name          String
+  heroName      String
+  modelName     String
+  tagline       String
+  subHeadline   String
+  price         Int
+  
+  // Media
+  folder        String
+  fileExtension String
+  frameCount    Int
+  accentColor   String
+  
+  // JSON Structure for Complex Arrays
+  specs         Json
+  phases        Json
+  visuals       Json     // { yOffset, scale, textAlignment, shadowOpacity }
+
+  // Meta
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model User {
+    id            String    @id @default(cuid())
+    email         String    @unique
+    name          String?
+    role          String    @default("user") // "admin" | "user"
+    createdAt     DateTime  @default(now())
+}

@@ -45,18 +45,27 @@ const TiltCard = ({ children, className = "", span = 1 }: { children: React.Reac
             style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
             className={`relative rounded-xl border border-white/10 bg-white/5 backdrop-blur-lg p-8 overflow-hidden group ${className} ${span === 2 ? 'md:col-span-2' : ''}`}
         >
+            {/* Tactical Corners */}
+            <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-white/30" />
+            <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-white/30" />
+            <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-white/30" />
+            <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-white/30" />
+
             <div style={{ transform: "translateZ(50px)" }} className="relative z-10 h-full flex flex-col justify-between">
                 {children}
             </div>
 
-            {/* Gradient Shine */}
+            {/* Gradient Shine & Scanline */}
             <div className="absolute inset-0 z-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-scanline" />
         </motion.div>
     );
 };
 
 export default function TechSpecs() {
     const { activeProduct } = useProductStore();
+
+    if (!activeProduct) return null;
 
     return (
         <SectionWrapper className="bg-spectre-black z-10">

@@ -37,7 +37,8 @@ export function useCanvasSequence({ product, containerRef, isMobile }: UseCanvas
         frames: framesRef,
         progress,
         isCriticalLoaded,
-        isFullLoaded
+        isFullLoaded,
+        isFirstFrameLoaded
     } = useSequenceLoader(
         product.folder,
         product.frameCount,
@@ -161,6 +162,19 @@ export function useCanvasSequence({ product, containerRef, isMobile }: UseCanvas
         };
 
     }, [isCriticalLoaded, smoothProgress, product.frameCount, renderCanvas, isMobile, framesRef]);
+
+    // 6. Initial Render (Fix for "First frames don't load")
+    useEffect(() => {
+        if (isFirstFrameLoaded && canvasRef.current) {
+            // Ensure dimensions are set before drawing
+            const resolutionScale = isMobile ? 0.6 : 1;
+            if (canvasRef.current.width === 0) {
+                canvasRef.current.width = window.innerWidth * resolutionScale;
+                canvasRef.current.height = window.innerHeight * resolutionScale;
+            }
+            renderCanvas(0);
+        }
+    }, [isFirstFrameLoaded, renderCanvas, isMobile]);
 
     return {
         canvasRef,

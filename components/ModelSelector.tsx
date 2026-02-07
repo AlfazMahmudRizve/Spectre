@@ -1,11 +1,12 @@
 'use client';
 import { motion, useScroll, useTransform, useMotionValueEvent } from 'framer-motion';
 import { useProductStore } from '@/store/productStore';
-import { products } from '@/data/products';
 import { useState, useEffect } from 'react';
 
 export default function ModelSelector() {
-    const { activeProduct, setActiveProduct } = useProductStore();
+    const { activeProduct, setActiveProduct, products } = useProductStore();
+
+    if (!activeProduct) return null;
     const { scrollY } = useScroll();
     const [pageHeight, setPageHeight] = useState(0);
 
