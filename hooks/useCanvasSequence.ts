@@ -1,17 +1,8 @@
 'use client';
-import { useEffect, useRef, useState, useCallback } from 'react';
-import { useScroll, useSpring, useTransform, MotionValue } from 'framer-motion';
+import { useEffect, useRef, useCallback } from 'react';
+import { useScroll, useSpring } from 'framer-motion';
 import { Product } from '@/data/products';
 import { useSequenceLoader } from './useSequenceLoader';
-
-// Simple debounce utility
-function debounce(fn: Function, ms: number) {
-    let timer: NodeJS.Timeout;
-    return (...args: any[]) => {
-        clearTimeout(timer);
-        timer = setTimeout(() => fn(...args), ms);
-    };
-}
 
 interface UseCanvasSequenceProps {
     product: Product;
@@ -20,166 +11,146 @@ interface UseCanvasSequenceProps {
 }
 
 export function useCanvasSequence({ product, containerRef, isMobile }: UseCanvasSequenceProps) {
-    // 1. Scroll Setup
     const { scrollYProgress } = useScroll({
         target: containerRef,
         offset: ["start start", "end end"]
     });
 
+    // Tuned for silk-smooth scrolling: lower stiffness = less "springy",
+    // higher damping = less oscillation, smaller restDelta = more precise settling
     const smoothProgress = useSpring(scrollYProgress, {
-        stiffness: 100,
-        damping: 30,
-        restDelta: 0.001
+        stiffness: 60,
+        damping: 20,
+        restDelta: 0.0005
     });
 
-    // 2. Asset Loading (Unified)
     const {
         frames: framesRef,
         progress,
         isCriticalLoaded,
-        isFullLoaded,
         isFirstFrameLoaded
     } = useSequenceLoader(
         product.folder,
         product.frameCount,
         product.fileExtension,
-        isMobile ? 10 : 25 // Load fewer critical frames on mobile for speed
+        isMobile ? 10 : 25
     );
 
-    // 3. Canvas Refs
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const lastFrameIndex = useRef(-1);
 
-    // 4. Render Logic
+    // Set canvas dimensions based on device pixel ratio for crisp rendering
+    const setCanvasDimensions = useCallback(() => {
+        if (!canvasRef.current) return;
+        // Use full resolution on all devices — the 0.6 mobile downscale was causing blurriness
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvasRef.current.width = window.innerWidth * dpr;
+        canvasRef.current.height = window.innerHeight * dpr;
+    }, []);
+
     const renderCanvas = useCallback((index: number) => {
         if (!canvasRef.current || !framesRef.current) return;
 
-        // Fallback: Find nearest loaded frame
+        // Skip redundant draws
+        if (index === lastFrameIndex.current) return;
+        lastFrameIndex.current = index;
+
+        // Find nearest loaded frame (fallback)
         let drawImg = framesRef.current[index];
         if (!drawImg) {
             for (let i = index - 1; i >= 0; i--) {
-                if (framesRef.current[i]) {
-                    drawImg = framesRef.current[i];
-                    break;
-                }
+                if (framesRef.current[i]) { drawImg = framesRef.current[i]; break; }
             }
         }
-
         if (!drawImg) return;
 
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
-        // Auto-scale to fill/contain based on product specs
-        const canvasRatio = canvas.width / canvas.height;
         const imgRatio = drawImg.width / drawImg.height;
-        let drawWidth, drawHeight, offsetX, offsetY;
+        const canvasRatio = canvas.width / canvas.height;
+        let drawWidth: number, drawHeight: number, offsetX: number, offsetY: number;
 
         if (imgRatio > canvasRatio) {
             drawWidth = canvas.width;
             drawHeight = canvas.width / imgRatio;
-            offsetX = 0;
-            offsetY = (canvas.height - drawHeight) / 2;
         } else {
             drawWidth = canvas.height * imgRatio;
             drawHeight = canvas.height;
-            offsetX = (canvas.width - drawWidth) / 2;
-            offsetY = 0;
         }
 
-        // Apply Custom Visuals
+        // Apply product-specific visuals
         let scale = product.visuals?.scale || 1;
 
-        // Mobile Adjustment: Zoom in to fill screen better (Portrait mode)
+        // Mobile: use aspect-ratio-aware scaling instead of a hardcoded 2.2x multiplier
         if (isMobile) {
-            scale *= 2.2; // Significant boost for portrait
+            const screenRatio = window.innerWidth / window.innerHeight;
+            // Portrait screens need more zoom to fill the narrow viewport
+            scale *= screenRatio < 0.6 ? 1.8 : 1.5;
         }
 
         const yOffset = (product.visuals?.yOffset || 0) * canvas.height;
 
         drawWidth *= scale;
         drawHeight *= scale;
-
         offsetX = (canvas.width - drawWidth) / 2;
         offsetY = (canvas.height - drawHeight) / 2 + yOffset;
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(drawImg, offsetX, offsetY, drawWidth, drawHeight);
-    }, [product.visuals, framesRef]); // Dependencies
+    }, [product.visuals, framesRef, isMobile]);
 
-    // 5. Scroll Loop
+    // Main render loop — only starts when critical frames are ready
     useEffect(() => {
         let rafId: number;
-        const resolutionScale = isMobile ? 0.6 : 1; // Reduce memory usage on mobile
+
+        setCanvasDimensions();
 
         const loop = () => {
-            // Unify: Desktop & Mobile both use Scroll Progress for frame index
             const currentScroll = smoothProgress.get();
             const maxFrame = product.frameCount - 1;
             const index = Math.min(maxFrame, Math.floor(currentScroll * maxFrame));
-
             renderCanvas(index);
             rafId = requestAnimationFrame(loop);
         };
 
-        // Start loop only when critical frames are ready
         if (isCriticalLoaded) {
+            // Force render frame 0 immediately so it's never blank
+            lastFrameIndex.current = -1;
+            renderCanvas(0);
             rafId = requestAnimationFrame(loop);
         }
 
-        // Resize Handler
-        const handleResize = debounce(() => {
-            if (canvasRef.current) {
-                // Internal Resolution Scaling
-                canvasRef.current.width = window.innerWidth * resolutionScale;
-                canvasRef.current.height = window.innerHeight * resolutionScale;
-
-                // Force re-render immediately
-                const currentScroll = smoothProgress.get();
-                const maxFrame = product.frameCount - 1;
-                const index = Math.min(maxFrame, Math.floor(currentScroll * maxFrame));
-                renderCanvas(index);
-            }
-        }, 100);
-
-        // Initial setup
-        if (canvasRef.current) {
-            canvasRef.current.width = window.innerWidth * resolutionScale;
-            canvasRef.current.height = window.innerHeight * resolutionScale;
-        }
+        const handleResize = () => {
+            setCanvasDimensions();
+            lastFrameIndex.current = -1; // Force re-render after resize
+        };
 
         window.addEventListener('resize', handleResize);
 
         return () => {
             if (rafId) cancelAnimationFrame(rafId);
             window.removeEventListener('resize', handleResize);
-
-            // Aggressive Cleanup: Help GC reclaiming memory
-            // We empty the array so the Image objects lose their references
             if (framesRef.current) {
                 framesRef.current = [];
             }
         };
+    }, [isCriticalLoaded, smoothProgress, product.frameCount, renderCanvas, setCanvasDimensions, framesRef]);
 
-    }, [isCriticalLoaded, smoothProgress, product.frameCount, renderCanvas, isMobile, framesRef]);
-
-    // 6. Initial Render (Fix for "First frames don't load")
+    // Immediate first-frame render (fix for "blank until scroll")
     useEffect(() => {
         if (isFirstFrameLoaded && canvasRef.current) {
-            // Ensure dimensions are set before drawing
-            const resolutionScale = isMobile ? 0.6 : 1;
-            if (canvasRef.current.width === 0) {
-                canvasRef.current.width = window.innerWidth * resolutionScale;
-                canvasRef.current.height = window.innerHeight * resolutionScale;
-            }
+            setCanvasDimensions();
+            lastFrameIndex.current = -1;
             renderCanvas(0);
         }
-    }, [isFirstFrameLoaded, renderCanvas, isMobile]);
+    }, [isFirstFrameLoaded, renderCanvas, setCanvasDimensions]);
 
     return {
         canvasRef,
         smoothProgress,
-        progress: isMobile && isCriticalLoaded ? 100 : progress, // Fake 100% on mobile once critical is done 
+        progress: isMobile && isCriticalLoaded ? 100 : progress,
         isReady: isCriticalLoaded
     };
 }

@@ -17,7 +17,6 @@ export default function ProductSequence({ product }: ProductSequenceProps) {
     const { hasIntroPlayed, setHasIntroPlayed } = useProductStore();
     const containerRef = useRef<HTMLDivElement>(null);
 
-    // Unified Logic (Mobile + Desktop)
     const {
         canvasRef,
         smoothProgress,
@@ -29,7 +28,6 @@ export default function ProductSequence({ product }: ProductSequenceProps) {
         isMobile
     });
 
-    // Auto-play intro if ready
     useEffect(() => {
         if (isReady && !hasIntroPlayed) {
             setHasIntroPlayed();
@@ -39,17 +37,11 @@ export default function ProductSequence({ product }: ProductSequenceProps) {
     return (
         <motion.div
             ref={containerRef}
-            className="h-[400vh] relative bg-[#050505] snap-y snap-mandatory"
-            initial={{ opacity: 0, scale: 0.98, filter: "blur(10px)" }}
-            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-            transition={{ duration: 1.0, ease: "easeOut" }}
+            className="h-[300vh] md:h-[400vh] relative bg-[#050505]"
+            initial={{ opacity: 0, filter: "blur(6px)" }}
+            animate={{ opacity: 1, filter: "blur(0px)" }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
         >
-            {/* Scroll Snap Points */}
-            <div className="absolute top-0 w-full h-screen snap-start pointer-events-none" />
-            <div className="absolute top-[100vh] w-full h-screen snap-start pointer-events-none" />
-            <div className="absolute top-[200vh] w-full h-screen snap-start pointer-events-none" />
-            <div className="absolute top-[300vh] w-full h-screen snap-start pointer-events-none" />
-
             <div className="sticky top-0 h-screen w-full overflow-hidden bg-[#050505]">
                 <AnimatePresence>
                     {/* Theme Switch Overlay placeholder */}
@@ -58,36 +50,37 @@ export default function ProductSequence({ product }: ProductSequenceProps) {
                 {/* BootLoader */}
                 <BootLoader progress={progress} complete={isReady} skip={hasIntroPlayed} />
 
-                {/* Unified Canvas Layer */}
+                {/* Canvas Layer */}
                 <canvas
                     ref={canvasRef}
                     className="absolute inset-0 w-full h-full object-contain pointer-events-none"
                     style={{
                         opacity: isReady ? 1 : 0,
-                        transition: 'opacity 0.5s ease-in'
+                        transition: 'opacity 0.4s ease-in'
                     }}
                 />
 
-                {/* Vignette Overlay for "Floating" Look */}
+                {/* Vignette Overlay */}
                 <div className="absolute inset-0 pointer-events-none z-10 bg-[radial-gradient(circle_at_center,transparent_60%,#050505_100%)]" />
 
-                {/* Scrolling Text Overlays */}
+                {/* Text Overlays */}
                 <TextOverlays scrollYProgress={smoothProgress} product={product} />
 
-                {/* Scroll Indicator */}
-                {!isMobile && isReady && hasIntroPlayed && (
+                {/* Scroll Indicator — visible on both mobile and desktop */}
+                {isReady && hasIntroPlayed && (
                     <motion.div
-                        className="absolute bottom-10 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-2 pointer-events-none mix-blend-difference"
+                        className="absolute bottom-6 md:bottom-10 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-2 pointer-events-none mix-blend-difference"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 1 }}
                     >
-                        <span className="text-[10px] font-mono tracking-[0.2em] text-white/50">SCROLL TO EXPLORE</span>
-                        <div className="w-[1px] h-8 bg-gradient-to-b from-white/0 via-white/50 to-white/0" />
+                        <span className="text-[10px] font-mono tracking-[0.2em] text-white/50">
+                            {isMobile ? 'SWIPE UP' : 'SCROLL TO EXPLORE'}
+                        </span>
+                        <div className="w-[1px] h-6 md:h-8 bg-gradient-to-b from-white/0 via-white/50 to-white/0" />
                     </motion.div>
                 )}
             </div>
         </motion.div>
     );
 }
-

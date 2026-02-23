@@ -8,7 +8,6 @@ import TechSpecs from '@/components/TechSpecs';
 import SoundTest from '@/components/SoundTest';
 import StaticGrid from '@/components/StaticGrid';
 import ModelSelector from '@/components/ModelSelector';
-import CartSidebar from '@/components/CartSidebar';
 import { useProductStore } from '@/store/productStore';
 import { Product } from '@/data/products';
 
@@ -19,12 +18,10 @@ interface SpectreClientProps {
 export default function SpectreClient({ initialProducts }: SpectreClientProps) {
     const { activeProduct, view, setProducts } = useProductStore();
 
-    // Hydrate store on mount
     useEffect(() => {
         setProducts(initialProducts);
     }, [initialProducts, setProducts]);
 
-    // Prevent rendering until hydration is done (optional, prevents flash)
     if (!activeProduct) return <div className="bg-black min-h-screen" />;
 
     return (
@@ -53,8 +50,6 @@ export default function SpectreClient({ initialProducts }: SpectreClientProps) {
             <div className="relative z-20 bg-black">
                 <Footer />
             </div>
-
-            <CartSidebar />
         </>
     );
 }

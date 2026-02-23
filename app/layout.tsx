@@ -3,7 +3,7 @@ import { Space_Grotesk, Inter } from 'next/font/google';
 import './globals.css';
 import SmoothScroll from '@/components/SmoothScroll';
 import { SoundProvider } from '@/components/SoundManager';
-import CartDrawer from '@/components/CartDrawer';
+import CartSidebar from '@/components/CartSidebar';
 import Providers from '@/components/Providers';
 
 const spaceGrotesk = Space_Grotesk({
@@ -17,12 +17,12 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'SPECTRE | The Ultimate Mechanical Keyboard',
-  description: 'Precision engineered. Gasket mounted. Zero-gravity acoustics. Experience the Spectre One.',
-  keywords: ['mechanical keyboard', 'spectre', 'gaming', 'premium keyboard'],
+  title: 'SPECTRE | High-Performance Commerce Interface',
+  description: 'A cinematic e-commerce experience built with Agentic AI. Precision-engineered product sequences, immersive scrolling, and a command-center admin dashboard.',
+  keywords: ['spectre', 'mechanical keyboard', 'headset', 'gaming', 'premium', 'agentic ai', 'alfaz mahmud rizve'],
   openGraph: {
-    title: 'SPECTRE | The Ultimate Mechanical Keyboard',
-    description: 'Precision engineered. Gasket mounted. Zero-gravity acoustics.',
+    title: 'SPECTRE | High-Performance Commerce Interface',
+    description: 'Precision-engineered. Scroll-driven cinema. Zero-gravity acoustics.',
     type: 'website',
   },
   authors: [{ name: 'Alfaz Mahmud Rizve', url: 'https://whoisalfaz.me' }],
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{ // Changed type definition for children
+}: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
@@ -46,7 +46,7 @@ export default function RootLayout({
       >
         <Providers>
           <SoundProvider>
-            <CartDrawer />
+            <CartSidebar />
             <SmoothScroll>
               {children}
             </SmoothScroll>

@@ -1,11 +1,12 @@
 import fs from 'fs/promises';
 import path from 'path';
+import os from 'os';
 
 // Adapting for Vercel's Read-Only Filesystem
-// We'll use /tmp (writable) in production/serverless, and data/db.json in dev.
+// We'll use os.tmpdir() (writable) in production/serverless, and data/db.json in dev.
 const DATA_DIR = path.join(process.cwd(), 'data');
 const DB_FILENAME = 'db.json';
-const TMP_DB_PATH = path.join('/tmp', DB_FILENAME);
+const TMP_DB_PATH = path.join(os.tmpdir(), DB_FILENAME);
 const LOCAL_DB_PATH = path.join(DATA_DIR, DB_FILENAME);
 
 // Types
